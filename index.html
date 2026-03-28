@@ -21,7 +21,8 @@
     .design-card{cursor:pointer;border:3px solid #ddd;border-radius:8px;overflow:hidden;width:90px;transition:all .2s;background:#f8f8f8;}
     .design-card:hover{border-color:#2a9d8f;}
     .design-card.active{border-color:#2a9d8f;box-shadow:0 0 0 2px #2a9d8f40;}
-    .design-card img{width:100%;height:120px;object-fit:cover;display:block;}
+    /* サムネイルで下部ロゴ部分を非表示にして表示 */
+    .design-card img{width:100%;height:120px;object-fit:cover;object-position:top;display:block;}
     .design-card .dc-name{font-size:10px;text-align:center;padding:4px 2px;color:#555;font-weight:bold;}
     .design-card.active .dc-name{color:#2a9d8f;}
     .cors-warning{font-size:11px;color:#e07b00;background:#fff8e1;border:1px solid #ffd54f;border-radius:6px;padding:8px 12px;margin-top:8px;display:none;}
@@ -66,12 +67,71 @@
 
     /* ===== プレビュー ===== */
     .right{flex:1;background:#fff;border-radius:10px;padding:18px;box-shadow:0 2px 10px rgba(0,0,0,.07);}
-    #prev-wrap{position:relative;display:inline-block;width:100%;}
-    #prev-img{width:100%;height:auto;display:block;border-radius:3px;}
+
+    /* 下部ロゴ部分を隠すためにwrapperにoverflow:hidden */
+    #prev-wrap{
+      position:relative;
+      display:block;
+      width:100%;
+      overflow:hidden;
+    }
+    #prev-img{
+      width:100%;
+      height:auto;
+      display:block;
+      border-radius:3px;
+      /* 下部15%を表示から隠す（PDFでも除去） */
+      margin-bottom:-15%;
+    }
     #prev-img.bw{filter:grayscale(100%);}
-    .overlay{position:absolute;left:4%;width:76%;display:flex;flex-direction:column;justify-content:center;padding:4px 14px;overflow:hidden;pointer-events:none;}
-    .ov-line{line-height:1.45;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:bold;color:#222;}
-    .ov-ph{color:#ccc;font-weight:normal;font-style:italic;}
+
+    /* 白いテキストボックス（プレビュー用） */
+    #prev-whitebox{
+      position:absolute;
+      background:#fff;
+      border:2px solid #ccc;
+      border-radius:4px;
+      pointer-events:none;
+      z-index:3;
+    }
+
+    /* テキストオーバーレイ */
+    .overlay{
+      position:absolute;
+      display:flex;
+      flex-direction:column;
+      justify-content:flex-start;
+      padding:6px 10px;
+      overflow:hidden;
+      pointer-events:none;
+      z-index:4;
+    }
+    .ov-line{line-height:1.5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:bold;color:#222;}
+    .ov-ph{color:#999;font-weight:normal;font-style:italic;font-size:85%;}
+
+    /* 下部ロゴ除去の案内（プレビュー表示） */
+    #bottom-notice{
+      position:absolute;
+      bottom:0;
+      left:0;
+      right:0;
+      height:15%;
+      background:rgba(240,240,240,0.92);
+      border-top:2px dashed #bbb;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      pointer-events:none;
+      z-index:5;
+    }
+    #bottom-notice span{
+      font-size:10px;
+      color:#888;
+      background:rgba(255,255,255,0.9);
+      padding:3px 8px;
+      border-radius:10px;
+      border:1px dashed #ccc;
+    }
 
     @media(max-width:760px){.wrap{flex-direction:column;padding:12px;}.left{width:100%;}}
   </style>
@@ -79,7 +139,7 @@
 <body>
 <header>
   <h1>ケアプランデータ連携システム　フライヤー作成ツール</h1>
-  <p>デザインを選んで → 事業所情報を入力 → PDFダウンロード</p>
+  <p>デザインを選んで → 事業所情報を入力 → PDFダウンロード（下部ロゴは自動除去されます）</p>
 </header>
 
 <!-- ===== デザイン選択バー ===== -->
@@ -124,9 +184,9 @@
         <input type="range" id="sl-size" min="10" max="80" value="30" oninput="render()">
         <span class="slider-val" id="lbl-size">30</span>
       </div>
-      <div style="font-size:10px;color:#aaa;margin-top:2px;text-align:right;">文字色：
+      <div style="font-size:10px;color:#aaa;margin-top:6px;text-align:right;">文字色：
         <select id="txt-color" onchange="render()" style="font-size:11px;border:1px solid #ddd;border-radius:4px;padding:2px;">
-          <option value="#222">黒</option>
+          <option value="#111" selected>黒</option>
           <option value="#fff">白</option>
           <option value="#2a9d8f">ティール</option>
         </select>
@@ -134,16 +194,21 @@
     </div>
 
     <div class="card">
-      <div class="card-title">📐 位置調整</div>
+      <div class="card-title">📐 位置・サイズ調整</div>
       <div class="slider-row">
         <label>上下位置</label>
-        <input type="range" id="sl-top" min="0" max="90" value="12" step="0.5" oninput="render()">
-        <span class="slider-val" id="lbl-top">12.0%</span>
+        <input type="range" id="sl-top" min="0" max="75" value="13" step="0.5" oninput="render()">
+        <span class="slider-val" id="lbl-top">13.0%</span>
       </div>
       <div class="slider-row">
         <label>左右位置</label>
         <input type="range" id="sl-left" min="0" max="30" value="4" step="0.5" oninput="render()">
         <span class="slider-val" id="lbl-left">4.0%</span>
+      </div>
+      <div class="slider-row">
+        <label>ボックス幅</label>
+        <input type="range" id="sl-boxw" min="20" max="95" value="76" step="1" oninput="render()">
+        <span class="slider-val" id="lbl-boxw">76%</span>
       </div>
     </div>
 
@@ -154,6 +219,10 @@
         <button class="sel-btn on-teal" id="c-color" onclick="setColor('color')">🟢 カラー</button>
         <button class="sel-btn"         id="c-bw"    onclick="setColor('bw')">⚫ 白黒</button>
       </div>
+      <div style="font-size:10px;color:#888;margin-top:10px;padding:6px 8px;background:#f0fffe;border-radius:6px;line-height:1.6;">
+        ✅ PDFでは下部ロゴ（厚生労働省等）を自動除去します<br>
+        ✅ テキストエリアは白い背景で出力されます
+      </div>
       <button class="btn-dl btn-color" onclick="dlPDF('color')" style="margin-top:14px;">📥 カラーPDFをダウンロード</button>
       <button class="btn-dl btn-bw"    onclick="dlPDF('bw')">📥 白黒PDFをダウンロード</button>
       <div class="status" id="status"></div>
@@ -162,22 +231,36 @@
 
   <!-- ===== 右：プレビュー ===== -->
   <div class="right">
-    <div class="card-title">👁️ プレビュー</div>
+    <div class="card-title" style="margin-bottom:12px;">👁️ プレビュー</div>
     <div id="prev-wrap">
       <img id="prev-img" src="" alt="デザインを選択してください" style="background:#f0f0f0;min-height:200px;">
+      <!-- 白いテキストボックス（プレビュー用） -->
+      <div id="prev-whitebox"></div>
+      <!-- テキストオーバーレイ -->
       <div class="overlay" id="overlay"></div>
+      <!-- 下部ロゴ除去の案内 -->
+      <div id="bottom-notice"><span>⬇ この部分（ロゴ・厚生労働省等）はPDFに含まれません</span></div>
     </div>
   </div>
 </div>
 
 <script>
-var DESIGNS = [{"id": 1, "url": "https://www.careplan-renkei-support.jp/wp-content/themes/kkh-prod/assets/img/chara/download_poster_01.png", "name": "デザイン①"}, {"id": 2, "url": "https://www.careplan-renkei-support.jp/wp-content/themes/kkh-prod/assets/img/chara/download_poster_02.png", "name": "デザイン②"}, {"id": 3, "url": "https://www.careplan-renkei-support.jp/wp-content/themes/kkh-prod/assets/img/chara/download_poster_03.png", "name": "デザイン③"}, {"id": 4, "url": "https://www.careplan-renkei-support.jp/wp-content/themes/kkh-prod/assets/img/chara/download_poster_04.png", "name": "デザイン④"}, {"id": 5, "url": "https://www.careplan-renkei-support.jp/wp-content/themes/kkh-prod/assets/img/chara/download_poster_05.png", "name": "デザイン⑤"}];
+var DESIGNS = [
+  {"id":1,"url":"https://www.careplan-renkei-support.jp/wp-content/themes/kkh-prod/assets/img/chara/download_poster_01.png","name":"デザイン①","topP":13,"leftP":4},
+  {"id":2,"url":"https://www.careplan-renkei-support.jp/wp-content/themes/kkh-prod/assets/img/chara/download_poster_02.png","name":"デザイン②","topP":13,"leftP":4},
+  {"id":3,"url":"https://www.careplan-renkei-support.jp/wp-content/themes/kkh-prod/assets/img/chara/download_poster_03.png","name":"デザイン③","topP":13,"leftP":4},
+  {"id":4,"url":"https://www.careplan-renkei-support.jp/wp-content/themes/kkh-prod/assets/img/chara/download_poster_04.png","name":"デザイン④","topP":13,"leftP":4},
+  {"id":5,"url":"https://www.careplan-renkei-support.jp/wp-content/themes/kkh-prod/assets/img/chara/download_poster_05.png","name":"デザイン⑤","topP":13,"leftP":4}
+];
 
 var FONTS = {
   gothic: '"Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo",sans-serif',
   maru:   '"M PLUS Rounded 1c","Hiragino Maru Gothic ProN",sans-serif',
   mincho: '"Hiragino Mincho ProN","Yu Mincho","MS Mincho",serif'
 };
+
+// 下部除去割合（下部15%を削除）
+var CROP_RATIO = 0.85;
 
 var curFont = 'gothic';
 var curDesign = DESIGNS[0];
@@ -209,6 +292,9 @@ function selectDesign(idx) {
   document.querySelectorAll('.design-card').forEach(function(c,i){
     c.classList.toggle('active', i===idx);
   });
+  // デザインごとのデフォルト位置を設定
+  document.getElementById('sl-top').value  = curDesign.topP;
+  document.getElementById('sl-left').value = curDesign.leftP;
   document.getElementById('prev-img').src = curDesign.url;
   render();
 }
@@ -251,37 +337,73 @@ function getLines() {
 
 // ===== プレビュー更新 =====
 function render() {
-  var lines = getLines();
-  var sz   = parseInt(document.getElementById('sl-size').value);
-  var topP = parseFloat(document.getElementById('sl-top').value);
-  var leftP= parseFloat(document.getElementById('sl-left').value);
-  var txtColor = document.getElementById('txt-color').value;
+  var lines   = getLines();
+  var sz      = parseInt(document.getElementById('sl-size').value);
+  var topP    = parseFloat(document.getElementById('sl-top').value);
+  var leftP   = parseFloat(document.getElementById('sl-left').value);
+  var boxWP   = parseFloat(document.getElementById('sl-boxw').value);
+  var txtColor= document.getElementById('txt-color').value;
+
   document.getElementById('lbl-size').textContent = sz;
   document.getElementById('lbl-top').textContent  = topP.toFixed(1)+'%';
   document.getElementById('lbl-left').textContent = leftP.toFixed(1)+'%';
-  var ov = document.getElementById('overlay');
-  ov.style.top  = topP+'%';
-  ov.style.left = leftP+'%';
-  ov.style.width= (96-leftP)+'%';
-  ov.innerHTML  = '';
+  document.getElementById('lbl-boxw').textContent = boxWP+'%';
+
+  var imgEl   = document.getElementById('prev-img');
+  var imgW    = imgEl.clientWidth  || 500;
+  var imgH    = imgEl.clientHeight || 700;
   var fontFam = FONTS[curFont];
-  var imgW = document.getElementById('prev-img').clientWidth || 500;
+
+  // プレビュー用フォントサイズ（3520px → 実際の表示幅に縮小）
   var previewSz = sz * imgW / 3520;
-  if(!lines.length){
-    var ph=document.createElement('div'); ph.className='ov-line ov-ph';
-    ph.style.fontSize=(previewSz*0.6)+'px';
-    ph.textContent='事業所番号・事業所名などを入力してください';
-    ov.appendChild(ph); return;
+  var lineHpx   = previewSz * 1.5;
+
+  // 白いボックスの高さ計算（プレビュー用）
+  var linesCount = Math.max(lines.length, 1);
+  var boxHpx = linesCount * lineHpx + previewSz * 0.8;
+
+  // 白いボックスの位置（プレビュー画像の表示座標で）
+  // ※画像は margin-bottom:-15% で下を切っているが、座標系はimgHが元のレンダリング高さ
+  var wb = document.getElementById('prev-whitebox');
+  wb.style.left   = leftP + '%';
+  wb.style.top    = topP  + '%';
+  wb.style.width  = boxWP + '%';
+  wb.style.height = boxHpx + 'px';
+
+  // テキストオーバーレイ
+  var ov = document.getElementById('overlay');
+  ov.style.top    = topP + '%';
+  ov.style.left   = leftP + '%';
+  ov.style.width  = boxWP + '%';
+  ov.innerHTML    = '';
+
+  if(!lines.length) {
+    var ph = document.createElement('div');
+    ph.className = 'ov-line ov-ph';
+    ph.style.fontSize = (previewSz * 0.9) + 'px';
+    ph.textContent = '事業所番号・事業所名などを入力してください';
+    ov.appendChild(ph);
+    wb.style.height = (previewSz * 1.8) + 'px';
+    return;
   }
-  lines.forEach(function(txt){
-    var el=document.createElement('div'); el.className='ov-line';
-    el.style.fontFamily=fontFam; el.style.fontSize=previewSz+'px';
-    el.style.color=txtColor; el.textContent=txt; ov.appendChild(el);
+
+  lines.forEach(function(txt) {
+    var el = document.createElement('div');
+    el.className = 'ov-line';
+    el.style.fontFamily = fontFam;
+    el.style.fontSize   = previewSz + 'px';
+    el.style.color      = txtColor;
+    el.textContent      = txt;
+    ov.appendChild(el);
   });
 }
 
 // ===== ステータス =====
-function setStatus(msg,type){ var el=document.getElementById('status'); el.textContent=msg; el.className='status'+(type?' '+type:''); }
+function setStatus(msg,type){
+  var el = document.getElementById('status');
+  el.textContent = msg;
+  el.className = 'status' + (type ? ' '+type : '');
+}
 
 // ===== 画像をDataURLに変換（CORS対応） =====
 async function imgToDataURL(url) {
@@ -290,11 +412,11 @@ async function imgToDataURL(url) {
     img.crossOrigin = 'anonymous';
     img.onload = function() {
       var c = document.createElement('canvas');
-      c.width = img.naturalWidth || 3520;
+      c.width  = img.naturalWidth  || 3520;
       c.height = img.naturalHeight || 4994;
       var ctx = c.getContext('2d');
       ctx.drawImage(img, 0, 0);
-      try { resolve(c.toDataURL('image/jpeg', 0.92)); }
+      try { resolve({ dataURL: c.toDataURL('image/jpeg',0.95), w: c.width, h: c.height }); }
       catch(e) { reject(new Error('CORS')); }
     };
     img.onerror = function() { reject(new Error('load')); };
@@ -307,71 +429,117 @@ async function dlPDF(mode) {
   var lines = getLines();
   if(!lines.length) { setStatus('テキストを入力してください','err'); return; }
   if(!curDesign.url) { setStatus('デザインを選択してください','err'); return; }
-  setStatus('PDF生成中...',''); 
+
+  setStatus('PDF生成中...','');
   document.querySelectorAll('.btn-dl').forEach(function(b){b.disabled=true;});
+
   try {
-    var sz    = parseInt(document.getElementById('sl-size').value);
-    var topP  = parseFloat(document.getElementById('sl-top').value);
-    var leftP = parseFloat(document.getElementById('sl-left').value);
-    var txtColor = document.getElementById('txt-color').value;
+    var sz      = parseInt(document.getElementById('sl-size').value);
+    var topP    = parseFloat(document.getElementById('sl-top').value);
+    var leftP   = parseFloat(document.getElementById('sl-left').value);
+    var boxWP   = parseFloat(document.getElementById('sl-boxw').value);
+    var txtColor= document.getElementById('txt-color').value;
     var fontFam = FONTS[curFont];
 
     // 画像をDataURLに変換
-    var imgDataURL;
+    var imgResult;
     try {
-      imgDataURL = await imgToDataURL(curDesign.url);
+      imgResult = await imgToDataURL(curDesign.url);
     } catch(e) {
       document.getElementById('cors-warning').style.display='block';
-      setStatus('❌ 画像の読み込みに失敗しました。画像をGitHubにアップロードしてください。','err');
+      setStatus('❌ 画像の読み込みに失敗しました。','err');
       document.querySelectorAll('.btn-dl').forEach(function(b){b.disabled=false;});
       return;
     }
 
-    // 画像のサイズ取得（3520x4994 を想定）
-    var iw = 3520, ih = 4994;
-    
-    // キャンバスに描画
+    var iw = imgResult.w;
+    var ih = imgResult.h;
+
+    // ====== 下部ロゴ除去：上位85%のみ使用 ======
+    var croppedH = Math.round(ih * CROP_RATIO);
+
+    // クロップしたキャンバスを作成
     var canvas = document.createElement('canvas');
-    canvas.width = iw; canvas.height = ih;
+    canvas.width  = iw;
+    canvas.height = croppedH;
     var ctx = canvas.getContext('2d');
-    
-    // 背景画像を描く
+
+    // 背景画像を上部85%だけ描画
     var bgImg = new Image();
     bgImg.crossOrigin = 'anonymous';
-    await new Promise(function(r){ bgImg.onload=r; bgImg.src=imgDataURL; });
-    ctx.drawImage(bgImg, 0, 0);
-    
+    await new Promise(function(r){ bgImg.onload=r; bgImg.src=imgResult.dataURL; });
+    // source: (0,0,iw,croppedH) → dest: (0,0,iw,croppedH)
+    ctx.drawImage(bgImg, 0, 0, iw, croppedH, 0, 0, iw, croppedH);
+
     // 白黒変換
     if(mode==='bw') {
-      var imgd = ctx.getImageData(0,0,iw,ih);
-      var d=imgd.data;
+      var imgd = ctx.getImageData(0,0,iw,croppedH);
+      var d = imgd.data;
       for(var i=0;i<d.length;i+=4){
-        var g=Math.round(0.299*d[i]+0.587*d[i+1]+0.114*d[i+2]);
+        var g = Math.round(0.299*d[i] + 0.587*d[i+1] + 0.114*d[i+2]);
         d[i]=d[i+1]=d[i+2]=g;
       }
       ctx.putImageData(imgd,0,0);
     }
-    
-    // テキストを描く
-    var textX = iw * leftP / 100;
-    var textY = ih * topP / 100;
+
+    // ====== 白いテキストボックスを描画 ======
     ctx.font = 'bold ' + sz + 'px ' + fontFam;
-    ctx.fillStyle = txtColor;
     ctx.textBaseline = 'top';
-    var lineH = sz * 1.5;
+
+    var textX  = iw * leftP / 100;
+    var textY  = ih * topP  / 100;  // 元画像の高さ基準（croppedH以内）
+    var lineH  = sz * 1.5;
+    var boxW   = iw * boxWP / 100;
+
+    // テキスト幅の計測（最大行幅を取得）
+    var maxTextW = 0;
+    lines.forEach(function(txt){
+      var tw = ctx.measureText(txt).width;
+      if(tw > maxTextW) maxTextW = tw;
+    });
+
+    // 白いボックスのサイズ（テキスト＋余白）
+    var pad = sz * 0.5;
+    var wbX = textX - pad;
+    var wbY = textY - pad;
+    var wbW = Math.min(boxW, iw - wbX);
+    var wbH = lines.length * lineH + pad * 2;
+
+    // 白い矩形を塗りつぶし
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(wbX, wbY, wbW, wbH);
+
+    // ボックスに薄い枠線
+    ctx.strokeStyle = 'rgba(200,200,200,0.6)';
+    ctx.lineWidth   = 2;
+    ctx.strokeRect(wbX, wbY, wbW, wbH);
+
+    // ====== テキストを描画 ======
+    ctx.fillStyle = txtColor;
     lines.forEach(function(txt, i) {
       ctx.fillText(txt, textX, textY + i * lineH);
     });
 
-    // PDF出力
+    // ====== PDF出力 ======
     var finalImg = canvas.toDataURL('image/jpeg', 0.92);
-    var jsPDF2 = window.jspdf.jsPDF;
-    var pdf = new jsPDF2({orientation:'portrait',unit:'mm',format:'a4'});
-    pdf.addImage(finalImg,'JPEG',0,0,210,297);
+    var jsPDF2   = window.jspdf.jsPDF;
+
+    // クロップ後のアスペクト比でPDFサイズを計算
+    var pdfW = 210; // A4横幅 mm
+    var pdfH = pdfW * croppedH / iw;
+
+    var pdf = new jsPDF2({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: [pdfW, Math.min(pdfH, 297)]
+    });
+    pdf.addImage(finalImg,'JPEG',0,0,pdfW,pdfH);
+
     var modeLabel = mode==='bw' ? '白黒' : 'カラー';
     var first = lines[0].replace(/[\s\/\\:*?"<>|]/g,'_').slice(0,20);
-    pdf.save(first+'_'+modeLabel+'.pdf');
+    pdf.save(first + '_' + modeLabel + '.pdf');
     setStatus('✅ ダウンロード完了！','ok');
+
   } catch(e) {
     console.error(e);
     setStatus('❌ エラーが発生しました：'+e.message,'err');

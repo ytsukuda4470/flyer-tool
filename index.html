@@ -77,9 +77,25 @@
       pointer-events:none;
       display:flex;
       flex-direction:column;
-      justify-content:center;
+      justify-content:flex-start;
       align-items:flex-start;
       padding:4px 10px;
+      overflow:hidden;
+      z-index:3;
+    }
+    #wb2-overlay{
+      position:absolute;
+      left:2%;
+      top:90.5%;
+      width:96%;
+      height:8.5%;
+      background:rgba(255,255,255,0.0);
+      pointer-events:none;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:flex-start;
+      padding:2px 12px;
       overflow:hidden;
       z-index:3;
     }
@@ -92,6 +108,15 @@
       color:#111;
       width:100%;
     }
+    .wb2-line{
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      color:#333;
+      width:100%;
+      line-height:1.2;
+    }
+    .wb2-label{font-weight:bold;color:#2a9d8f;margin-right:0.2em;}
     .wb-ph{color:#aaa;font-weight:normal;font-style:italic;font-size:85%;}
 
     @media(max-width:760px){.wrap{flex-direction:column;padding:12px;}.left{width:100%;}}
@@ -139,7 +164,7 @@
           <input type="text" id="inp-email" placeholder="例：info@example.jp" maxlength="40" oninput="render()">
         </div>
       </div>
-      <div style="font-size:10px;color:#aaa;margin-top:4px;">☑ チェックを外した項目はフライヤーに表示されません</div>
+      <div style="font-size:10px;color:#888;margin-top:6px;line-height:1.5;">☑ チェックを外すと<strong>上部の白枠</strong>への表示から消えます<br>※ 下部エリアには入力済みの情報が常に表示されます</div>
     </div>
 
     <div class="card">
@@ -182,6 +207,7 @@
     <div id="prev-wrap">
       <img id="prev-img" src="" alt="デザインを選択してください" style="background:#eee;min-height:200px;">
       <div id="wb-overlay"></div>
+      <div id="wb2-overlay"></div>
     </div>
   </div>
 </div>
@@ -201,7 +227,8 @@ var FONTS = {
 };
 
 // 白いボックスの位置（画像比率）
-var WB = { left:0.058, top:0.1365, width:0.682, height:0.1145 };
+var WB  = { left:0.058, top:0.1365, width:0.682, height:0.1145 };
+var WB2 = { left:0.02,  top:0.905,  width:0.96,  height:0.085 };
 
 var curFont = 'gothic';
 var curDesignIdx = 0;
@@ -347,6 +374,60 @@ function render() {
     el.textContent        = f.value;
     ov.appendChild(el);
   });
+
+  // ===== 下部エリア (WB2) に全フィールドを表示 =====
+  renderWB2(imgW, imgH, fontFam, txtColor);
+}
+
+function renderWB2(imgW, imgH, fontFam, txtColor) {
+  var allFields = getFields().filter(function(f){ return f.value !== ''; });
+  var ov2 = document.getElementById('wb2-overlay');
+  ov2.innerHTML = '';
+  if (!allFields.length) return;
+
+  var wbH2_px = imgH * WB2.height;
+  var n2 = allFields.length;
+  // WB2用フォントサイズ（WBの約60%）
+  var sz2 = parseInt(document.getElementById('sl-size').value) * 0.58;
+  var fs2 = sz2 * imgW / 1000;
+  var lh2 = fs2 * 1.35;
+  if (lh2 * n2 > wbH2_px * 0.92) {
+    lh2 = wbH2_px * 0.92 / n2;
+    fs2 = lh2 / 1.35;
+  }
+  var totalH2 = lh2 * n2;
+  var pad2 = (wbH2_px - totalH2) / 2;
+  ov2.style.paddingTop = pad2 + 'px';
+  ov2.style.gap = '0';
+
+  var labelMap = {
+    '事業所番号': '事業所番号',
+    '事業所名':   '事業所名',
+    '事業所住所': '住　　所',
+    '電話番号':   'TEL',
+    'Email':      'Mail'
+  };
+
+  allFields.forEach(function(f) {
+    var row = document.createElement('div');
+    row.className = 'wb2-line';
+    row.style.fontFamily   = fontFam;
+    row.style.fontSize     = fs2 + 'px';
+    row.style.lineHeight   = '1';
+    row.style.marginBottom = (lh2 - fs2) + 'px';
+
+    var lbl = document.createElement('span');
+    lbl.className = 'wb2-label';
+    lbl.style.fontSize = (fs2 * 0.82) + 'px';
+    lbl.textContent = (labelMap[f.label] || f.label) + '：';
+
+    var val = document.createElement('span');
+    val.textContent = f.value;
+
+    row.appendChild(lbl);
+    row.appendChild(val);
+    ov2.appendChild(row);
+  });
 }
 
 // ===== ステータス =====
@@ -439,6 +520,41 @@ async function dlPDF(mode) {
         currentY += lineH * scale * 0.5 + lineH * nextScale * 0.5 + (lineH * scale - fontSize * scale) * 0.5;
       }
     });
+
+    // ====== WB2（下部エリア）に全フィールドを描画 ======
+    var allFields = getFields().filter(function(f){ return f.value !== ''; });
+    if (allFields.length > 0) {
+      var wbX2 = iw * WB2.left;
+      var wbY2 = ih * WB2.top;
+      var wbW2 = iw * WB2.width;
+      var wbH2 = ih * WB2.height;
+      var n2   = allFields.length;
+
+      var fs2base = sz * iw / 1000 * 0.58;
+      var lh2    = fs2base * 1.35;
+      if (lh2 * n2 > wbH2 * 0.92) {
+        lh2    = wbH2 * 0.92 / n2;
+        fs2base = lh2 / 1.35;
+      }
+      var totalH2b = lh2 * n2;
+      var startY2  = wbY2 + (wbH2 - totalH2b) / 2 + fs2base * 0.85;
+      var textX2   = wbX2 + fs2base * 0.5;
+
+      var labelMap2 = { '事業所番号':'事業所番号', '事業所名':'事業所名', '事業所住所':'住　　所', '電話番号':'TEL', 'Email':'Mail' };
+
+      allFields.forEach(function(f, i) {
+        var lbl = (labelMap2[f.label] || f.label) + '：';
+        // ラベル（小さめ）
+        ctx.font      = 'bold ' + (fs2base * 0.80) + 'px ' + fontFam;
+        ctx.fillStyle = '#2a9d8f';
+        ctx.fillText(lbl, textX2, startY2 + lh2 * i);
+        // ラベル幅を計測して値を続けて描画
+        var lblW = ctx.measureText(lbl).width;
+        ctx.font      = '' + fs2base + 'px ' + fontFam;
+        ctx.fillStyle = '#222';
+        ctx.fillText(f.value, textX2 + lblW, startY2 + lh2 * i);
+      });
+    }
 
     // PDF出力（A4比率）
     var finalImg = canvas.toDataURL('image/jpeg', 0.93);

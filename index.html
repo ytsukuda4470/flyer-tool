@@ -34,6 +34,9 @@
     .field-row input{flex:1;border:none;background:transparent;font-size:12px;font-family:inherit;outline:none;color:#333;min-width:0;}
     .field-row input::placeholder{color:#ccc;}
     .field-row input:focus{outline:none;}
+    .field-chk{width:16px;height:16px;accent-color:#2a9d8f;cursor:pointer;flex-shrink:0;margin-right:2px;}
+    .field-row-big .field-label{color:#1a7a6f;}
+    .field-row-unchecked{opacity:0.45;}
 
     .slider-row{display:flex;align-items:center;gap:8px;margin-top:6px;}
     .slider-row label{font-size:11px;color:#666;min-width:60px;white-space:nowrap;}
@@ -110,28 +113,33 @@
     <div class="card">
       <div class="card-title">📝 事業所情報入力</div>
       <div class="field-list">
-        <div class="field-row">
+        <div class="field-row" id="row-num">
+          <input type="checkbox" id="chk-num" class="field-chk" checked onchange="updateRowStyle('row-num','chk-num');render();" title="フライヤーに表示する">
           <span class="field-label">事業所番号</span>
           <input type="text" id="inp-num"   placeholder="例：1234567890" maxlength="20" oninput="render()">
         </div>
-        <div class="field-row">
+        <div class="field-row field-row-big" id="row-name">
+          <input type="checkbox" id="chk-name" class="field-chk" checked onchange="updateRowStyle('row-name','chk-name');render();" title="フライヤーに表示する">
           <span class="field-label">事業所名</span>
           <input type="text" id="inp-name"  placeholder="例：〇〇介護センター" maxlength="30" oninput="render()">
         </div>
-        <div class="field-row">
+        <div class="field-row" id="row-addr">
+          <input type="checkbox" id="chk-addr" class="field-chk" checked onchange="updateRowStyle('row-addr','chk-addr');render();" title="フライヤーに表示する">
           <span class="field-label">事業所住所</span>
           <input type="text" id="inp-addr"  placeholder="例：東京都〇〇区..." maxlength="40" oninput="render()">
         </div>
-        <div class="field-row">
+        <div class="field-row" id="row-tel">
+          <input type="checkbox" id="chk-tel" class="field-chk" checked onchange="updateRowStyle('row-tel','chk-tel');render();" title="フライヤーに表示する">
           <span class="field-label">電話番号</span>
           <input type="text" id="inp-tel"   placeholder="例：03-XXXX-XXXX" maxlength="20" oninput="render()">
         </div>
-        <div class="field-row">
+        <div class="field-row" id="row-email">
+          <input type="checkbox" id="chk-email" class="field-chk" checked onchange="updateRowStyle('row-email','chk-email');render();" title="フライヤーに表示する">
           <span class="field-label">メールアドレス</span>
           <input type="text" id="inp-email" placeholder="例：info@example.jp" maxlength="40" oninput="render()">
         </div>
       </div>
-      <div style="font-size:10px;color:#aaa;margin-top:4px;">※ 空白の項目は自動的にスペースを調整します</div>
+      <div style="font-size:10px;color:#aaa;margin-top:4px;">☑ チェックを外した項目はフライヤーに表示されません</div>
     </div>
 
     <div class="card">
@@ -199,20 +207,33 @@ var curFont = 'gothic';
 var curDesignIdx = 0;
 
 // ===== フィールド取得 =====
+var BIG_SCALE = 1.3;
+
+function updateRowStyle(rowId, chkId) {
+  var row = document.getElementById(rowId);
+  var chk = document.getElementById(chkId);
+  row.classList.toggle('field-row-unchecked', !chk.checked);
+}
+
 function getFields() {
   var defs = [
-    { id: 'inp-num',   label: '事業所番号' },
-    { id: 'inp-name',  label: '事業所名' },
-    { id: 'inp-addr',  label: '事業所住所' },
-    { id: 'inp-tel',   label: '電話番号' },
-    { id: 'inp-email', label: 'Email' }
+    { id: 'inp-num',   label: '事業所番号', chk: 'chk-num',   big: false },
+    { id: 'inp-name',  label: '事業所名',   chk: 'chk-name',  big: true  },
+    { id: 'inp-addr',  label: '事業所住所', chk: 'chk-addr',  big: false },
+    { id: 'inp-tel',   label: '電話番号',   chk: 'chk-tel',   big: false },
+    { id: 'inp-email', label: 'Email',      chk: 'chk-email', big: false }
   ];
   return defs.map(function(d) {
-    return { label: d.label, value: document.getElementById(d.id).value.trim() };
+    return {
+      label:   d.label,
+      value:   document.getElementById(d.id).value.trim(),
+      checked: document.getElementById(d.chk).checked,
+      big:     d.big
+    };
   });
 }
 function getActiveFields() {
-  return getFields().filter(function(f){ return f.value !== ''; });
+  return getFields().filter(function(f){ return f.value !== '' && f.checked; });
 }
 
 // ===== デザインカード生成 =====
@@ -279,16 +300,20 @@ function render() {
   var previewSz = sz * imgW / 1000;
 
   // フィールド数に応じてラインハイトを自動調整
-  var n = Math.max(fields.length, 1);
+  // 有効フィールドの実効行数（big フィールドは BIG_SCALE 倍の高さ）
+  var effectiveN = fields.length > 0
+    ? fields.reduce(function(acc, f){ return acc + (f.big ? BIG_SCALE : 1); }, 0)
+    : 1;
+
   var lineH = previewSz * 1.35;
-  var totalH = lineH * n;
+  var totalH = lineH * effectiveN;
   if (totalH > wbH_px * 0.92) {
-    lineH = wbH_px * 0.92 / n;
+    lineH = wbH_px * 0.92 / effectiveN;
     previewSz = lineH / 1.35;
   }
 
   // 垂直中央配置のためのオフセット
-  var totalH2 = lineH * n;
+  var totalH2 = lineH * effectiveN;
   var startOffset = (wbH_px - totalH2) / 2;
 
   var ov = document.getElementById('wb-overlay');
@@ -307,16 +332,19 @@ function render() {
   ov.style.paddingTop = startOffset + 'px';
   ov.style.paddingBottom = startOffset + 'px';
   ov.style.justifyContent = 'flex-start';
-  ov.style.gap = (lineH - previewSz) + 'px';
+  ov.style.gap = '0';
 
-  fields.forEach(function(f) {
+  fields.forEach(function(f, idx) {
+    var scale = f.big ? BIG_SCALE : 1;
+    var fSize = previewSz * scale;
     var el = document.createElement('div');
     el.className = 'wb-line';
-    el.style.fontFamily = fontFam;
-    el.style.fontSize   = previewSz + 'px';
-    el.style.color      = txtColor;
-    el.style.lineHeight = '1';
-    el.textContent      = f.value;
+    el.style.fontFamily   = fontFam;
+    el.style.fontSize     = fSize + 'px';
+    el.style.color        = txtColor;
+    el.style.lineHeight   = '1';
+    el.style.marginBottom = (lineH * scale - fSize) + 'px';
+    el.textContent        = f.value;
     ov.appendChild(el);
   });
 }
@@ -377,29 +405,39 @@ async function dlPDF(mode) {
     var wbW = iw * WB.width;
     var wbH = ih * WB.height;
 
-    var n = fields.length;
+    // 有効フィールドの実効行数（big フィールドは BIG_SCALE 倍の高さ）
+    var effectiveN = fields.reduce(function(acc, f){ return acc + (f.big ? BIG_SCALE : 1); }, 0);
 
     // フォントサイズ（ピクセル）- 自動調整
     var fontSize = sz * iw / 1000;
     var lineH    = fontSize * 1.35;
-    var totalH   = lineH * n;
+    var totalH   = lineH * effectiveN;
 
     // ボックスに収まらない場合は縮小
     if (totalH > wbH * 0.92) {
-      lineH    = wbH * 0.92 / n;
+      lineH    = wbH * 0.92 / effectiveN;
       fontSize = lineH / 1.35;
     }
 
-    // 垂直中央配置
-    var startY = wbY + (wbH - lineH * n) / 2 + fontSize * 0.85;
+    // 垂直中央配置（最初のフィールドのベースライン）
+    var firstScale = fields[0].big ? BIG_SCALE : 1;
+    var startY = wbY + (wbH - lineH * effectiveN) / 2 + fontSize * firstScale * 0.85;
     var textX  = wbX + fontSize * 0.4;
 
-    ctx.font = 'bold ' + fontSize + 'px ' + fontFam;
-    ctx.fillStyle  = txtColor;
+    ctx.fillStyle    = txtColor;
     ctx.textBaseline = 'alphabetic';
 
+    var currentY = startY;
     fields.forEach(function(f, i) {
-      ctx.fillText(f.value, textX, startY + lineH * i);
+      var scale = f.big ? BIG_SCALE : 1;
+      var fSize = fontSize * scale;
+      ctx.font = 'bold ' + fSize + 'px ' + fontFam;
+      ctx.fillText(f.value, textX, currentY);
+      // 次のフィールドの先頭位置（このフィールドの高さ分進む）
+      if (i < fields.length - 1) {
+        var nextScale = fields[i+1].big ? BIG_SCALE : 1;
+        currentY += lineH * scale * 0.5 + lineH * nextScale * 0.5 + (lineH * scale - fontSize * scale) * 0.5;
+      }
     });
 
     // PDF出力（A4比率）

@@ -91,14 +91,30 @@
       height:9%;
       background:rgba(255,255,255,0.0);
       pointer-events:none;
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      grid-auto-rows:1fr;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
       align-items:center;
-      padding:1% 2%;
+      padding:0.5% 2%;
       overflow:hidden;
       z-index:3;
-      gap:0 4%;
+      gap:0;
+    }
+    .wb2-name-row{
+      width:100%;
+      text-align:center;
+      font-weight:bold;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .wb2-grid-row{
+      width:100%;
+      display:flex;
+      flex-direction:row;
+      justify-content:center;
+      align-items:center;
+      gap:6%;
     }
     .wb-line{
       line-height:1.3;
@@ -115,7 +131,9 @@
       text-overflow:ellipsis;
       display:flex;
       align-items:baseline;
-      gap:0.15em;
+      gap:0.12em;
+      flex:1;
+      justify-content:center;
     }
     .wb2-label{font-weight:bold;color:#2a9d8f;white-space:nowrap;flex-shrink:0;}
     .wb2-val{color:#222;overflow:hidden;text-overflow:ellipsis;}
@@ -185,7 +203,6 @@
       <div style="font-size:10px;color:#aaa;margin-top:6px;text-align:right;">文字色：
         <select id="txt-color" onchange="render()" style="font-size:11px;border:1px solid #ddd;border-radius:4px;padding:2px;">
           <option value="#111">黒</option>
-          <option value="#fff">白</option>
           <option value="#2a9d8f">ティール</option>
         </select>
       </div>
@@ -387,44 +404,72 @@ function renderWB2(imgW, imgH, fontFam, txtColor) {
   ov2.innerHTML = '';
   if (!allFields.length) return;
 
-  // 2列グリッド：行数 = ceil(n/2)
-  var n2 = allFields.length;
-  var rows2 = Math.ceil(n2 / 2);
+  // 事業所名 と それ以外 を分離
+  var nameField   = allFields.filter(function(f){ return f.label === '事業所名'; })[0] || null;
+  var otherFields = allFields.filter(function(f){ return f.label !== '事業所名'; });
 
-  // WB2の高さからフォントサイズを自動計算
+  // 行数計算（名前行1行 ＋ その他ceil(n/2)行）
+  var nameRows  = nameField  ? 1 : 0;
+  var otherRows = Math.ceil(otherFields.length / 2);
+  var totalRows = Math.max(nameRows + otherRows, 1);
+
   var wbH2_px = imgH * WB2.height;
-  var fs2 = (wbH2_px * 0.80) / rows2 / 1.4;
-  // 最大サイズキャップ（大きくなりすぎない）
-  var maxFs = imgW * 0.028;
-  if (fs2 > maxFs) fs2 = maxFs;
+  var rowH    = wbH2_px * 0.88 / totalRows;
+
+  // フォントサイズ
+  var nameFs  = Math.min(rowH / 1.35, imgW * 0.040);
+  var otherFs = Math.min(rowH * 0.72 / 1.35, imgW * 0.028);
 
   var labelMap = {
     '事業所番号': '番号',
-    '事業所名':   '事業所名',
     '事業所住所': '住所',
     '電話番号':   'TEL',
     'Email':      'Mail'
   };
 
-  allFields.forEach(function(f) {
-    var item = document.createElement('div');
-    item.className = 'wb2-item';
-    item.style.fontFamily = fontFam;
-    item.style.fontSize   = fs2 + 'px';
+  // ── 事業所名行（全幅・中央）──
+  if (nameField) {
+    var nameRow = document.createElement('div');
+    nameRow.className = 'wb2-name-row';
+    nameRow.style.fontFamily = fontFam;
+    nameRow.style.fontSize   = nameFs + 'px';
+    nameRow.style.lineHeight = rowH + 'px';
+    nameRow.style.color      = '#111';
+    nameRow.textContent      = nameField.value;
+    ov2.appendChild(nameRow);
+  }
 
-    var lbl = document.createElement('span');
-    lbl.className = 'wb2-label';
-    lbl.style.fontSize = (fs2 * 0.80) + 'px';
-    lbl.textContent = (labelMap[f.label] || f.label) + '：';
+  // ── その他フィールド（2列グリッド・中央揃い）──
+  for (var r = 0; r < otherRows; r++) {
+    var gridRow = document.createElement('div');
+    gridRow.className = 'wb2-grid-row';
+    gridRow.style.lineHeight = (rowH * 0.80) + 'px';
 
-    var val = document.createElement('span');
-    val.className = 'wb2-val';
-    val.textContent = f.value;
+    for (var c = 0; c < 2; c++) {
+      var idx = r * 2 + c;
+      if (idx >= otherFields.length) break;
+      var f = otherFields[idx];
 
-    item.appendChild(lbl);
-    item.appendChild(val);
-    ov2.appendChild(item);
-  });
+      var item = document.createElement('div');
+      item.className = 'wb2-item';
+      item.style.fontFamily = fontFam;
+      item.style.fontSize   = otherFs + 'px';
+
+      var lbl = document.createElement('span');
+      lbl.className = 'wb2-label';
+      lbl.style.fontSize = (otherFs * 0.80) + 'px';
+      lbl.textContent = (labelMap[f.label] || f.label) + '：';
+
+      var val = document.createElement('span');
+      val.className = 'wb2-val';
+      val.textContent = f.value;
+
+      item.appendChild(lbl);
+      item.appendChild(val);
+      gridRow.appendChild(item);
+    }
+    ov2.appendChild(gridRow);
+  }
 }
 
 // ===== ステータス =====
@@ -518,50 +563,74 @@ async function dlPDF(mode) {
       }
     });
 
-    // ====== WB2（下部エリア）に全フィールドを2列で描画 ======
-    var allFields = getFields().filter(function(f){ return f.value !== ''; });
-    if (allFields.length > 0) {
+    // ====== WB2（下部エリア）事業所名は大きく・他は2列中央揃い ======
+    var allFields2 = getFields().filter(function(f){ return f.value !== ''; });
+    if (allFields2.length > 0) {
       var wbX2 = iw * WB2.left;
       var wbY2 = ih * WB2.top;
       var wbW2 = iw * WB2.width;
       var wbH2 = ih * WB2.height;
-      var n2   = allFields.length;
-      var rows2 = Math.ceil(n2 / 2);
 
-      // フォントサイズを高さから自動計算（2列）
-      var fs2 = (wbH2 * 0.80) / rows2 / 1.4;
-      var maxFs2 = iw * 0.028;
-      if (fs2 > maxFs2) fs2 = maxFs2;
-      var lh2  = fs2 * 1.4;
+      var nameField2   = allFields2.filter(function(f){ return f.label === '事業所名'; })[0] || null;
+      var otherFields2 = allFields2.filter(function(f){ return f.label !== '事業所名'; });
+      var nameRows2  = nameField2 ? 1 : 0;
+      var otherRows2 = Math.ceil(otherFields2.length / 2);
+      var totalRows2 = Math.max(nameRows2 + otherRows2, 1);
 
-      var colW = wbW2 / 2;
-      var startY2 = wbY2 + (wbH2 - lh2 * rows2) / 2 + fs2 * 0.85;
+      var rowH2   = wbH2 * 0.88 / totalRows2;
+      var nameFs2 = Math.min(rowH2 / 1.35, iw * 0.040);
+      var othFs2  = Math.min(rowH2 * 0.72 / 1.35, iw * 0.028);
+      var lhName  = rowH2;
+      var lhOth   = rowH2 * 0.80;
 
-      var labelMap2 = { '事業所番号':'番号', '事業所名':'事業所名', '事業所住所':'住所', '電話番号':'TEL', 'Email':'Mail' };
+      var totalH2b = nameRows2 * lhName + otherRows2 * lhOth;
+      var baseY2   = wbY2 + (wbH2 - totalH2b) / 2;
+      var curY2    = baseY2;
+
+      var labelMap2 = { '事業所番号':'番号', '事業所住所':'住所', '電話番号':'TEL', 'Email':'Mail' };
 
       ctx.textBaseline = 'alphabetic';
-      allFields.forEach(function(f, i) {
-        var col = i % 2;
-        var row = Math.floor(i / 2);
-        var x = wbX2 + col * colW + fs2 * 0.3;
-        var y = startY2 + lh2 * row;
 
-        var lbl = (labelMap2[f.label] || f.label) + '：';
-        ctx.font      = 'bold ' + (fs2 * 0.78) + 'px ' + fontFam;
-        ctx.fillStyle = '#2a9d8f';
-        ctx.fillText(lbl, x, y);
-        var lblW = ctx.measureText(lbl).width;
+      // 事業所名（全幅中央）
+      if (nameField2) {
+        ctx.font      = 'bold ' + nameFs2 + 'px ' + fontFam;
+        ctx.fillStyle = '#111';
+        ctx.textAlign = 'center';
+        ctx.fillText(nameField2.value, wbX2 + wbW2 / 2, curY2 + nameFs2 * 0.85);
+        curY2 += lhName;
+      }
 
-        ctx.font      = '' + fs2 + 'px ' + fontFam;
-        ctx.fillStyle = '#222';
-        // 値が列幅を超えないようにトリミング
-        var maxValW = colW - lblW - fs2;
-        var val = f.value;
-        while (val.length > 0 && ctx.measureText(val).width > maxValW) {
-          val = val.slice(0, -1);
+      // 他フィールド（2列・各列中央）
+      var colW2 = wbW2 / 2;
+      for (var r2 = 0; r2 < otherRows2; r2++) {
+        var y2 = curY2 + othFs2 * 0.85;
+        for (var c2 = 0; c2 < 2; c2++) {
+          var fi2 = r2 * 2 + c2;
+          if (fi2 >= otherFields2.length) break;
+          var f2  = otherFields2[fi2];
+          var lbl2 = (labelMap2[f2.label] || f2.label) + '：';
+          var colCx = wbX2 + colW2 * c2 + colW2 / 2; // 列の中心
+
+          // ラベル幅を計算して中央からオフセット
+          ctx.font = 'bold ' + (othFs2 * 0.78) + 'px ' + fontFam;
+          var lblW2 = ctx.measureText(lbl2).width;
+          ctx.font = '' + othFs2 + 'px ' + fontFam;
+          var valW2 = ctx.measureText(f2.value).width;
+          var totalW2 = lblW2 + valW2;
+          var startX2 = colCx - totalW2 / 2;
+
+          ctx.textAlign = 'left';
+          ctx.font      = 'bold ' + (othFs2 * 0.78) + 'px ' + fontFam;
+          ctx.fillStyle = '#2a9d8f';
+          ctx.fillText(lbl2, startX2, y2);
+
+          ctx.font      = '' + othFs2 + 'px ' + fontFam;
+          ctx.fillStyle = '#222';
+          ctx.fillText(f2.value, startX2 + lblW2, y2);
         }
-        ctx.fillText(val, x + lblW, y);
-      });
+        curY2 += lhOth;
+      }
+      ctx.textAlign = 'left'; // リセット
     }
 
     // PDF出力（A4比率）

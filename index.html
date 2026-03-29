@@ -271,20 +271,25 @@
       <textarea id="inp-msg" class="msg-textarea" placeholder="例：ケアプランデータ連携システムの導入についてご質問があればお気軽にご連絡ください。" oninput="render()" maxlength="200"></textarea>
       <div style="font-size:10px;color:#aaa;margin-top:3px;text-align:right;"><span id="msg-count">0</span>/200文字</div>
 
-      <!-- 位置スライダー（textarea直下） -->
+      <!-- 位置・幅スライダー（textarea直下） -->
       <div style="background:#f8fffe;border:1px solid #e0f5f3;border-radius:6px;padding:6px 8px;margin-top:6px;">
-        <div style="font-size:10px;font-weight:bold;color:#2a9d8f;margin-bottom:4px;">📍 フライヤー上の位置</div>
+        <div style="font-size:10px;font-weight:bold;color:#2a9d8f;margin-bottom:4px;">📍 フライヤー上の位置・幅</div>
         <div class="pos-row" style="margin-bottom:4px;">
           <label style="min-width:40px;">↕ 上下</label>
-          <input type="range" id="sl-msg-y" min="20" max="88" value="55" step="0.5" oninput="updatePosLabel();render()">
+          <input type="range" id="sl-msg-y" min="20" max="90" value="55" step="0.5" oninput="updatePosLabel();render()">
           <span class="pos-val" id="lbl-msg-y">55%</span>
         </div>
-        <div class="pos-row">
+        <div class="pos-row" style="margin-bottom:4px;">
           <label style="min-width:40px;">↔ 左右</label>
-          <input type="range" id="sl-msg-x" min="-40" max="40" value="0" step="1" oninput="updatePosLabel();render()">
-          <span class="pos-val" id="lbl-msg-x">0</span>
+          <input type="range" id="sl-msg-x" min="0" max="80" value="10" step="1" oninput="updatePosLabel();render()">
+          <span class="pos-val" id="lbl-msg-x">10%</span>
         </div>
-        <button class="pos-reset" style="margin-top:4px;" onclick="resetMsg()">↺ リセット</button>
+        <div class="pos-row" style="margin-bottom:4px;">
+          <label style="min-width:40px;">↔ 幅</label>
+          <input type="range" id="sl-msg-w" min="10" max="98" value="80" step="1" oninput="updatePosLabel();render()">
+          <span class="pos-val" id="lbl-msg-w">80%</span>
+        </div>
+        <button class="pos-reset" style="margin-top:2px;" onclick="resetMsg()">↺ リセット</button>
       </div>
 
       <!-- 文字サイズ・色 -->
@@ -385,8 +390,10 @@ function updatePosLabel() {
   document.getElementById('lbl-off-y2').textContent  = (oy2 >= 0 ? '+' : '') + oy2;
   document.getElementById('lbl-off-x2').textContent  = (ox2 >= 0 ? '+' : '') + ox2;
   document.getElementById('lbl-wb2-size').textContent = wb2s + '%';
-  document.getElementById('lbl-msg-y').textContent   = my + '%';
-  document.getElementById('lbl-msg-x').textContent   = (mx >= 0 ? '+' : '') + mx;
+  var mw = parseFloat(document.getElementById('sl-msg-w') ? document.getElementById('sl-msg-w').value : 80);
+  document.getElementById('lbl-msg-y').textContent = my + '%';
+  document.getElementById('lbl-msg-x').textContent = mx + '%';
+  if (document.getElementById('lbl-msg-w')) document.getElementById('lbl-msg-w').textContent = mw + '%';
 }
 function resetPos() {
   document.getElementById('sl-off-y').value = 0;
@@ -401,7 +408,8 @@ function resetPos2() {
 }
 function resetMsg() {
   document.getElementById('sl-msg-y').value = 55;
-  document.getElementById('sl-msg-x').value = 0;
+  document.getElementById('sl-msg-x').value = 10;
+  if (document.getElementById('sl-msg-w')) document.getElementById('sl-msg-w').value = 80;
   updatePosLabel(); render();
 }
 function validateNum() {
@@ -482,17 +490,17 @@ function renderMsg(imgW, imgH, fontFam) {
   var sz      = parseInt(document.getElementById('sl-msg-size').value || 12);
   var color   = document.getElementById('msg-color').value;
   var posY    = parseFloat(document.getElementById('sl-msg-y').value || 55);
-  var posX    = parseFloat(document.getElementById('sl-msg-x').value || 0);
+  var posX    = parseFloat(document.getElementById('sl-msg-x').value || 10);
+  var posW    = parseFloat((document.getElementById('sl-msg-w') || {value:'80'}).value || 80);
   var fs      = sz * imgW / 1000;
-  var msgW    = 80; // 幅80%固定
-  var leftPct = 10 + posX * 0.5; // 中央基点から左右にオフセット
 
   ov.style.top    = posY + '%';
-  ov.style.left   = Math.max(0, Math.min(leftPct, 60)) + '%';
-  ov.style.width  = msgW + '%';
+  ov.style.left   = posX + '%';
+  ov.style.width  = posW + '%';
 
   var el = document.createElement('div');
   el.className   = 'msg-text';
+  el.style.width  = '100%';
   el.style.fontFamily = fontFam;
   el.style.fontSize   = fs + 'px';
   el.style.color      = color;
@@ -908,17 +916,18 @@ async function dlPDF(mode) {
       var msgSz    = parseInt(document.getElementById('sl-msg-size').value || 12);
       var msgColor = document.getElementById('msg-color').value;
       var msgPosY  = parseFloat(document.getElementById('sl-msg-y').value || 55) / 100;
-      var msgPosXraw = parseFloat(document.getElementById('sl-msg-x').value || 0);
-      var msgPosX  = (10 + msgPosXraw * 0.5) / 100;
+      var msgPosX = parseFloat(document.getElementById('sl-msg-x').value || 10) / 100;
+      var msgPosW = parseFloat((document.getElementById('sl-msg-w') || {value:'80'}).value || 80) / 100;
       var msgFs    = msgSz * iw / 1000;
       ctx.font         = 'bold ' + msgFs + 'px ' + fontFam;
       ctx.fillStyle    = msgColor;
       ctx.textAlign    = 'center';
       ctx.textBaseline = 'middle';
+      ctx.textAlign = 'center';
+      var msgCenterX = iw * (msgPosX + msgPosW / 2);
       var lines = msgTxt.split('\n');
       lines.forEach(function(line, li) {
-        ctx.fillText(line, iw * (msgPosX + 0.4),
-                          ih * msgPosY + li * msgFs * 1.6);
+        ctx.fillText(line, msgCenterX, ih * msgPosY + li * msgFs * 1.6);
       });
       ctx.textAlign    = 'left';
       ctx.textBaseline = 'alphabetic';

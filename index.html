@@ -249,31 +249,7 @@
           <button id="align-right"  class="align-btn"         onclick="setAlign('right')"  title="右揃え">右</button>
         </div>
       </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">💬 事業所からのメッセージ</div>
-      <div style="font-size:10px;color:#aaa;margin-bottom:6px;">フライヤーに掲載するメッセージを入力してください</div>
-      <textarea id="inp-msg" class="msg-textarea" placeholder="例：ケアプランデータ連携システムの導入についてご質問があればお気軽にご連絡ください。" oninput="render()" maxlength="200"></textarea>
-      <div style="font-size:10px;color:#aaa;margin-top:4px;text-align:right;"><span id="msg-count">0</span>/200文字</div>
-      <div class="slider-row" style="margin-top:8px;">
-        <label>文字サイズ</label>
-        <input type="range" id="sl-msg-size" min="6" max="30" value="12" oninput="render()">
-        <span class="slider-val" id="lbl-msg-size">12</span>
-      </div>
-      <div style="font-size:11px;color:#888;margin-top:8px;">文字色：
-        <select id="msg-color" onchange="render()" style="font-size:11px;border:1px solid #ddd;border-radius:4px;padding:2px;">
-          <option value="#111111">黒</option>
-          <option value="#ffffff">白</option>
-          <option value="#2a9d8f">ティール</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">📐 テキスト位置の微調整</div>
-
-      <div style="font-size:11px;font-weight:bold;color:#2a9d8f;margin-bottom:4px;">▲ 上部テキスト（白枠内）</div>
+      <div style="font-size:11px;font-weight:bold;color:#2a9d8f;margin:10px 0 4px;">📍 上部テキスト位置</div>
       <div class="pos-grid">
         <div class="pos-row">
           <label>↕ 上下</label>
@@ -287,13 +263,49 @@
         </div>
       </div>
       <button class="pos-reset" onclick="resetPos()">↺ 上部をリセット</button>
+    </div>
 
-      <div style="font-size:11px;font-weight:bold;color:#2a9d8f;margin:10px 0 4px;">▼ 下部テキスト（白ストライプ）</div>
-      <div class="slider-row" style="margin-bottom:4px;">
+    <div class="card">
+      <div class="card-title">💬 事業所からのメッセージ</div>
+      <div style="font-size:10px;color:#aaa;margin-bottom:6px;">フライヤーに掲載するメッセージを入力してください</div>
+      <textarea id="inp-msg" class="msg-textarea" placeholder="例：ケアプランデータ連携システムの導入についてご質問があればお気軽にご連絡ください。" oninput="render()" maxlength="200"></textarea>
+      <div style="font-size:10px;color:#aaa;margin-top:4px;text-align:right;"><span id="msg-count">0</span>/200文字</div>
+      <div class="slider-row" style="margin-top:8px;">
+        <label>文字サイズ</label>
+        <input type="range" id="sl-msg-size" min="6" max="30" value="12" oninput="updatePosLabel();render()">
+        <span class="slider-val" id="lbl-msg-size">12</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
+        <span style="font-size:11px;color:#888;">文字色：</span>
+        <button id="mc-black" class="align-btn on-teal" onclick="setMsgColor('#111111')">黒</button>
+        <button id="mc-white" class="align-btn"         onclick="setMsgColor('#ffffff')">白</button>
+        <input type="hidden" id="msg-color" value="#111111">
+      </div>
+      <div style="font-size:11px;font-weight:bold;color:#2a9d8f;margin:10px 0 4px;">📍 メッセージ位置</div>
+      <div class="pos-grid">
+        <div class="pos-row">
+          <label>↕ 上下</label>
+          <input type="range" id="sl-msg-y" min="20" max="88" value="55" step="0.5" oninput="updatePosLabel();render()">
+          <span class="pos-val" id="lbl-msg-y">55%</span>
+        </div>
+        <div class="pos-row">
+          <label>↔ 左右</label>
+          <input type="range" id="sl-msg-x" min="0" max="50" value="5" step="0.5" oninput="updatePosLabel();render()">
+          <span class="pos-val" id="lbl-msg-x">5%</span>
+        </div>
+      </div>
+      <button class="pos-reset" onclick="resetMsg()">↺ メッセージをリセット</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📊 下部エリア設定</div>
+      <div style="font-size:10px;color:#aaa;margin-bottom:6px;">フライヤー下部の白ストライプのテキスト設定</div>
+      <div class="slider-row">
         <label style="font-size:10px;color:#888;min-width:60px;">文字サイズ</label>
         <input type="range" id="sl-wb2-size" min="50" max="200" value="100" oninput="updatePosLabel();render()">
         <span class="pos-val" id="lbl-wb2-size">100%</span>
       </div>
+      <div style="font-size:11px;font-weight:bold;color:#2a9d8f;margin:8px 0 4px;">📍 下部テキスト位置</div>
       <div class="pos-grid">
         <div class="pos-row">
           <label>↕ 上下</label>
@@ -307,21 +319,6 @@
         </div>
       </div>
       <button class="pos-reset" onclick="resetPos2()">↺ 下部をリセット</button>
-
-      <div style="font-size:11px;font-weight:bold;color:#2a9d8f;margin:10px 0 4px;">💬 メッセージ位置</div>
-      <div class="pos-grid">
-        <div class="pos-row">
-          <label>↕ 上下</label>
-          <input type="range" id="sl-msg-y" min="20" max="88" value="55" step="0.5" oninput="updatePosLabel();render()">
-          <span class="pos-val" id="lbl-msg-y">55%</span>
-        </div>
-        <div class="pos-row">
-          <label>↔ 左右</label>
-          <input type="range" id="sl-msg-x" min="0" max="50" value="5" step="0.5" oninput="updatePosLabel();render()">
-          <span class="pos-val" id="lbl-msg-x">5%</span>
-        </div>
-      </div>
-      <button class="pos-reset" onclick="resetMsg()">↺ メッセージ位置をリセット</button>
     </div>
 
     <div class="card">
@@ -434,6 +431,12 @@ function validateNum() {
     row.style.border = '';
     row.style.background = '';
   }
+}
+function setMsgColor(c) {
+  document.getElementById('msg-color').value = c;
+  document.getElementById('mc-black').classList.toggle('on-teal', c === '#111111');
+  document.getElementById('mc-white').classList.toggle('on-teal', c === '#ffffff');
+  render();
 }
 function setAlign(a) {
   curAlign = a;

@@ -914,7 +914,7 @@ async function dlPDF(mode) {
             var lblW = ctx.measureText(f2.label + '：').width;
             var totalW = lblW + valW;
             var x = rightEdgeX - totalW;
-            ctx.fillStyle = '#2a9d8f';
+            ctx.fillStyle = mode === 'bw' ? txtColor : '#2a9d8f';
             ctx.textAlign = 'left';
             ctx.fillText(f2.label + '：', x, midY);
             ctx.font = '' + otherFs2 + 'px ' + fontFam;
@@ -927,7 +927,7 @@ async function dlPDF(mode) {
           fields.forEach(function(f2, ri) {
             var midY = startWb2Y + rowStep2 * ri + rowStep2 / 2;
             ctx.font = 'bold ' + (otherFs2 * 0.78) + 'px ' + fontFam;
-            ctx.fillStyle = '#2a9d8f';
+            ctx.fillStyle = mode === 'bw' ? txtColor : '#2a9d8f';
             ctx.textAlign = 'left';
             var lblW = ctx.measureText(f2.label + '：').width;
             ctx.fillText(f2.label + '：', startX, midY);
@@ -962,37 +962,62 @@ async function dlPDF(mode) {
       var msgSz    = parseInt(document.getElementById('sl-msg-size').value || 12);
       var msgColor = document.getElementById('msg-color').value;
       var msgPosY  = parseFloat(document.getElementById('sl-msg-y').value || 55) / 100;
-      var msgPosX = parseFloat(document.getElementById('sl-msg-x').value || 10) / 100;
-      var msgPosW = parseFloat((document.getElementById('sl-msg-w') || {value:'80'}).value || 80) / 100;
+      var msgPosX  = parseFloat(document.getElementById('sl-msg-x').value || 10) / 100;
+      var msgPosW  = parseFloat((document.getElementById('sl-msg-w') || {value:'80'}).value || 80) / 100;
       var msgFs    = msgSz * iw / 1000;
-      ctx.font         = 'bold ' + msgFs + 'px ' + fontFam;
-      ctx.fillStyle    = msgColor;
-      ctx.textAlign    = 'center';
-      ctx.textBaseline = 'middle';
       var msgAlign       = (document.getElementById('msg-align') || {value:'left'}).value || 'left';
       var msgHasBorder   = document.getElementById('msg-border') && document.getElementById('msg-border').checked;
       var msgBorderColor = (document.getElementById('msg-border-color') || {value:'#111111'}).value;
       var msgBorderW     = parseInt((document.getElementById('sl-msg-border-w') || {value:'2'}).value || 2);
 
+      // 自動折り返し（段落ごとに処理）
+      ctx.font = 'bold ' + msgFs + 'px ' + fontFam;
+      var maxLineW = iw * msgPosW - msgFs * 0.6;
+      var wrappedLines = [];
+      msgTxt.split('\n').forEach(function(para) {
+        if (!para) { wrappedLines.push(''); return; }
+        if (ctx.measureText(para).width <= maxLineW) {
+          wrappedLines.push(para);
+        } else {
+          var cur = '';
+          for (var ci = 0; ci < para.length; ci++) {
+            var test = cur + para[ci];
+            if (ctx.measureText(test).width > maxLineW && cur.length > 0) {
+              wrappedLines.push(cur);
+              cur = para[ci];
+            } else {
+              cur = test;
+            }
+          }
+          if (cur) wrappedLines.push(cur);
+        }
+      });
+
+      var lineStep = msgFs * 1.6;
+      var padV     = msgFs * 0.5;  // 上下パディング
+      var padH     = msgFs * 0.4;  // 左右パディング
+      var boxTopY  = ih * msgPosY - padV;
+      var boxH     = wrappedLines.length * lineStep + padV * 2;
+      var boxX     = iw * msgPosX;
+      var boxW     = iw * msgPosW;
+
       // 枠線描画
       if (msgHasBorder) {
         ctx.strokeStyle = msgBorderColor;
         ctx.lineWidth   = msgBorderW * iw / 500;
-        var lines2 = msgTxt.split('\n');
-        var boxH = lines2.length * msgFs * 1.6 + msgFs * 0.6;
-        ctx.strokeRect(iw * msgPosX, ih * msgPosY - msgFs * 0.9,
-                       iw * msgPosW, boxH);
+        ctx.strokeRect(boxX, boxTopY, boxW, boxH);
       }
 
-      // テキスト揃え
+      // テキスト描画
+      ctx.fillStyle    = msgColor;
+      ctx.textBaseline = 'top';
       var msgDrawX;
-      if (msgAlign === 'center')     { ctx.textAlign = 'center'; msgDrawX = iw * (msgPosX + msgPosW / 2); }
-      else if (msgAlign === 'right') { ctx.textAlign = 'right';  msgDrawX = iw * (msgPosX + msgPosW) - msgFs * 0.3; }
-      else                           { ctx.textAlign = 'left';   msgDrawX = iw * msgPosX + msgFs * 0.3; }
+      if (msgAlign === 'center')     { ctx.textAlign = 'center'; msgDrawX = boxX + boxW / 2; }
+      else if (msgAlign === 'right') { ctx.textAlign = 'right';  msgDrawX = boxX + boxW - padH; }
+      else                           { ctx.textAlign = 'left';   msgDrawX = boxX + padH; }
 
-      var lines = msgTxt.split('\n');
-      lines.forEach(function(line, li) {
-        ctx.fillText(line, msgDrawX, ih * msgPosY + li * msgFs * 1.6);
+      wrappedLines.forEach(function(line, li) {
+        ctx.fillText(line, msgDrawX, ih * msgPosY + li * lineStep);
       });
       ctx.textAlign    = 'left';
       ctx.textBaseline = 'alphabetic';

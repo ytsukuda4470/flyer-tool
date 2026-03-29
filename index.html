@@ -24,19 +24,16 @@
     .design-card.active .dc-name{color:#2a9d8f;}
 
     .wrap{display:flex;gap:18px;padding:18px;max-width:1200px;margin:0 auto;align-items:flex-start;}
-    .left{width:300px;flex-shrink:0;display:flex;flex-direction:column;gap:12px;}
+    .left{width:360px;flex-shrink:0;display:flex;flex-direction:column;gap:12px;}
     .card{background:#fff;border-radius:10px;padding:16px;box-shadow:0 2px 10px rgba(0,0,0,.07);}
     .card-title{font-size:13px;font-weight:bold;color:#2a9d8f;margin-bottom:12px;padding-bottom:7px;border-bottom:2px solid #e0f5f3;}
 
     .field-list{display:flex;flex-direction:column;gap:8px;margin-bottom:10px;}
-    .field-row{display:flex;align-items:center;gap:6px;background:#f8fffe;border:1.5px solid #d4eeeb;border-radius:7px;padding:6px 10px;}
-    .field-label{font-size:10px;color:#2a9d8f;font-weight:bold;min-width:72px;white-space:nowrap;}
+    .field-row{display:flex;align-items:center;gap:6px;background:#f8fffe;border:1.5px solid #d4eeeb;border-radius:7px;padding:7px 10px;}
+    .field-label{font-size:10px;color:#2a9d8f;font-weight:bold;min-width:62px;white-space:nowrap;}
     .field-row input{flex:1;border:none;background:transparent;font-size:12px;font-family:inherit;outline:none;color:#333;min-width:0;}
     .field-row input::placeholder{color:#ccc;}
     .field-row input:focus{outline:none;}
-    .field-chk{width:16px;height:16px;accent-color:#2a9d8f;cursor:pointer;flex-shrink:0;margin-right:2px;}
-    .field-row-big .field-label{color:#1a7a6f;}
-    .field-row-unchecked{opacity:0.45;}
 
     .slider-row{display:flex;align-items:center;gap:8px;margin-top:6px;}
     .slider-row label{font-size:11px;color:#666;min-width:60px;white-space:nowrap;}
@@ -77,44 +74,11 @@
       pointer-events:none;
       display:flex;
       flex-direction:column;
-      justify-content:flex-start;
+      justify-content:center;
       align-items:flex-start;
       padding:4px 10px;
       overflow:hidden;
       z-index:3;
-    }
-    #wb2-overlay{
-      position:absolute;
-      left:1%;
-      top:90.2%;
-      width:98%;
-      height:9%;
-      background:rgba(255,255,255,0.0);
-      pointer-events:none;
-      display:flex;
-      flex-direction:column;
-      justify-content:center;
-      align-items:center;
-      padding:0.5% 2%;
-      overflow:hidden;
-      z-index:3;
-      gap:0;
-    }
-    .wb2-name-row{
-      width:100%;
-      text-align:center;
-      font-weight:bold;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-    .wb2-grid-row{
-      width:100%;
-      display:flex;
-      flex-direction:row;
-      justify-content:center;
-      align-items:center;
-      gap:6%;
     }
     .wb-line{
       line-height:1.3;
@@ -125,19 +89,81 @@
       color:#111;
       width:100%;
     }
-    .wb2-item{
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      display:flex;
-      align-items:baseline;
-      gap:0.12em;
-      flex:1;
-      justify-content:center;
-    }
-    .wb2-label{font-weight:bold;color:#2a9d8f;white-space:nowrap;flex-shrink:0;}
-    .wb2-val{color:#222;overflow:hidden;text-overflow:ellipsis;}
     .wb-ph{color:#aaa;font-weight:normal;font-style:italic;font-size:85%;}
+
+    /* チェックボックス */
+    .field-chk{accent-color:#2a9d8f;width:17px;height:17px;cursor:pointer;flex-shrink:0;margin-right:1px;}
+
+    /* WB2（下部白エリア）オーバーレイ */
+    #wb2-overlay{
+      position:absolute;left:1%;top:90.2%;width:98%;height:9%;
+      background:rgba(255,255,255,0.0);pointer-events:none;
+      display:flex;flex-direction:column;justify-content:center;align-items:center;
+      padding:0.4% 3%;overflow:hidden;z-index:3;
+      gap:0;
+    }
+    .wb2-name-row{
+      width:100%;text-align:center;font-weight:bold;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+      line-height:1.2;
+    }
+    .wb2-cols-row{
+      width:100%;display:flex;flex-direction:row;
+      justify-content:space-between;align-items:flex-start;
+      margin-top:0.3%;
+    }
+    .wb2-col{display:flex;flex-direction:column;justify-content:flex-start;flex:1;overflow:hidden;}
+    .wb2-col-left{padding-left:4%;padding-right:3%;align-items:flex-end;} /* 右揃え */
+    .wb2-col-right{padding-left:3%;padding-right:4%;align-items:flex-start;border-left:1.5px solid #d4eeeb;} /* 左揃え */
+    .wb2-item{
+      display:flex;align-items:baseline;
+      white-space:nowrap;overflow:hidden;
+      line-height:1.3;
+    }
+    .wb2-label{font-weight:bold;color:#2a9d8f;margin-right:0.12em;flex-shrink:0;}
+    .wb2-val{overflow:hidden;text-overflow:ellipsis;}
+
+    /* 文字揃えボタン */
+    .align-btn{padding:4px 8px;border:2px solid #ddd;border-radius:5px;background:#fff;cursor:pointer;font-size:10px;color:#555;transition:all .2s;font-family:inherit;}
+    .align-btn.on-teal{border-color:#2a9d8f;background:#e0f5f3;color:#2a9d8f;}
+    .align-btn:hover:not(.on-teal){border-color:#aaa;}
+
+    /* チェック解説 */
+    .chk-note{font-size:10px;color:#888;margin-top:8px;line-height:1.6;padding:6px 8px;background:#f8fffe;border-radius:6px;border:1px solid #e0f5f3;}
+    .chk-note-title{font-size:11px;font-weight:bold;color:#2a9d8f;margin-bottom:4px;}
+
+    /* 位置微調整 */
+    .pos-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 8px;margin-top:4px;}
+    .pos-row{display:flex;align-items:center;gap:4px;}
+    .pos-row label{font-size:10px;color:#888;min-width:28px;white-space:nowrap;}
+    .pos-row input[type=range]{flex:1;accent-color:#2a9d8f;height:3px;}
+    .pos-val{font-size:10px;color:#2a9d8f;font-weight:bold;min-width:32px;text-align:right;}
+    .pos-reset{font-size:10px;color:#2a9d8f;background:none;border:1px solid #d4eeeb;border-radius:4px;cursor:pointer;padding:2px 6px;margin-top:4px;}
+    .pos-reset:hover{background:#e0f5f3;}
+
+    /* メッセージオーバーレイ */
+    #msg-overlay{
+      position:absolute;
+      left:5%;top:50%;
+      width:90%;
+      background:rgba(255,255,255,0.0);
+      pointer-events:none;
+      display:flex;flex-direction:column;
+      align-items:center;
+      overflow:hidden;z-index:4;
+    }
+    .msg-text{
+      text-align:center;font-weight:bold;
+      white-space:pre-wrap;word-break:break-all;
+      line-height:1.5;
+    }
+    /* メッセージ入力 */
+    .msg-textarea{
+      width:100%;min-height:56px;border:1.5px solid #d4eeeb;border-radius:7px;
+      background:#f8fffe;font-size:12px;font-family:inherit;color:#333;
+      padding:6px 8px;resize:vertical;outline:none;box-sizing:border-box;
+    }
+    .msg-textarea:focus{border-color:#2a9d8f;}
 
     @media(max-width:760px){.wrap{flex-direction:column;padding:12px;}.left{width:100%;}}
   </style>
@@ -159,32 +185,41 @@
       <div class="card-title">📝 事業所情報入力</div>
       <div class="field-list">
         <div class="field-row" id="row-num">
-          <input type="checkbox" id="chk-num" class="field-chk" checked onchange="updateRowStyle('row-num','chk-num');render();" title="フライヤーに表示する">
+          <input type="checkbox" class="field-chk" id="chk-num" checked onchange="render()">
           <span class="field-label">事業所番号</span>
-          <input type="text" id="inp-num"   placeholder="例：1234567890" maxlength="20" oninput="render()">
+          <input type="text" id="inp-num" placeholder="例：1234567890" maxlength="10"
+            oninput="validateNum();render()" style="flex:1;border:none;background:transparent;font-size:12px;font-family:inherit;outline:none;color:#333;min-width:0;">
         </div>
-        <div class="field-row field-row-big" id="row-name">
-          <input type="checkbox" id="chk-name" class="field-chk" checked onchange="updateRowStyle('row-name','chk-name');render();" title="フライヤーに表示する">
+        <div class="field-row">
+          <input type="checkbox" class="field-chk" id="chk-name" checked onchange="render()">
           <span class="field-label">事業所名</span>
           <input type="text" id="inp-name"  placeholder="例：〇〇介護センター" maxlength="30" oninput="render()">
         </div>
-        <div class="field-row" id="row-addr">
-          <input type="checkbox" id="chk-addr" class="field-chk" checked onchange="updateRowStyle('row-addr','chk-addr');render();" title="フライヤーに表示する">
+        <div class="field-row">
+          <input type="checkbox" class="field-chk" id="chk-addr" checked onchange="render()">
           <span class="field-label">事業所住所</span>
           <input type="text" id="inp-addr"  placeholder="例：東京都〇〇区..." maxlength="40" oninput="render()">
         </div>
-        <div class="field-row" id="row-tel">
-          <input type="checkbox" id="chk-tel" class="field-chk" checked onchange="updateRowStyle('row-tel','chk-tel');render();" title="フライヤーに表示する">
+        <div class="field-row">
+          <input type="checkbox" class="field-chk" id="chk-tel" checked onchange="render()">
           <span class="field-label">電話番号</span>
           <input type="text" id="inp-tel"   placeholder="例：03-XXXX-XXXX" maxlength="20" oninput="render()">
         </div>
-        <div class="field-row" id="row-email">
-          <input type="checkbox" id="chk-email" class="field-chk" checked onchange="updateRowStyle('row-email','chk-email');render();" title="フライヤーに表示する">
+        <div class="field-row">
+          <input type="checkbox" class="field-chk" id="chk-email" checked onchange="render()">
           <span class="field-label">メールアドレス</span>
           <input type="text" id="inp-email" placeholder="例：info@example.jp" maxlength="40" oninput="render()">
         </div>
       </div>
-      <div style="font-size:10px;color:#888;margin-top:6px;line-height:1.5;">☑ チェックを外すと<strong>上部の白枠</strong>への表示から消えます<br>※ 下部エリアには入力済みの情報が常に表示されます</div>
+      <div id="err-num" style="display:none;margin-top:4px;padding:5px 10px;background:#fff0f0;border:1.5px solid #e63946;border-radius:6px;font-size:11px;color:#e63946;font-weight:bold;">
+        ⚠ 事業所番号は半角英数10桁で入力してください（現在：<span id="err-num-count">0</span>桁）
+      </div>
+      <div class="chk-note">
+        <div class="chk-note-title">☑ チェックボックスの動作について</div>
+        <b style="color:#2a9d8f;">✓ チェックあり</b> → フライヤー<b>上部の白枠</b>に表示されます<br>
+        <b style="color:#aaa;">□ チェックなし</b> → 上部の白枠から非表示になります<br>
+        <span style="color:#999;">※ <b>下部エリア</b>には入力済みの全情報が常に表示されます</span>
+      </div>
     </div>
 
     <div class="card">
@@ -200,12 +235,93 @@
         <input type="range" id="sl-size" min="8" max="50" value="22" oninput="render()">
         <span class="slider-val" id="lbl-size">22</span>
       </div>
-      <div style="font-size:10px;color:#aaa;margin-top:6px;text-align:right;">文字色：
-        <select id="txt-color" onchange="render()" style="font-size:11px;border:1px solid #ddd;border-radius:4px;padding:2px;">
-          <option value="#111">黒</option>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;flex-wrap:wrap;gap:6px;">
+        <div style="font-size:11px;color:#888;">文字色：
+          <select id="txt-color" onchange="render()" style="font-size:11px;border:1px solid #ddd;border-radius:4px;padding:2px;">
+            <option value="#111">黒</option>
+            <option value="#2a9d8f">ティール</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:center;gap:4px;">
+          <span style="font-size:11px;color:#888;">揃え：</span>
+          <button id="align-left"   class="align-btn on-teal" onclick="setAlign('left')"   title="左揃え">左</button>
+          <button id="align-center" class="align-btn"         onclick="setAlign('center')" title="中央揃え">中</button>
+          <button id="align-right"  class="align-btn"         onclick="setAlign('right')"  title="右揃え">右</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">💬 事業所からのメッセージ</div>
+      <div style="font-size:10px;color:#aaa;margin-bottom:6px;">フライヤーに掲載するメッセージを入力してください</div>
+      <textarea id="inp-msg" class="msg-textarea" placeholder="例：ケアプランデータ連携システムの導入についてご質問があればお気軽にご連絡ください。" oninput="render()" maxlength="200"></textarea>
+      <div style="font-size:10px;color:#aaa;margin-top:4px;text-align:right;"><span id="msg-count">0</span>/200文字</div>
+      <div class="slider-row" style="margin-top:8px;">
+        <label>文字サイズ</label>
+        <input type="range" id="sl-msg-size" min="6" max="30" value="12" oninput="render()">
+        <span class="slider-val" id="lbl-msg-size">12</span>
+      </div>
+      <div style="font-size:11px;color:#888;margin-top:8px;">文字色：
+        <select id="msg-color" onchange="render()" style="font-size:11px;border:1px solid #ddd;border-radius:4px;padding:2px;">
+          <option value="#111111">黒</option>
+          <option value="#ffffff">白</option>
           <option value="#2a9d8f">ティール</option>
         </select>
       </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📐 テキスト位置の微調整</div>
+
+      <div style="font-size:11px;font-weight:bold;color:#2a9d8f;margin-bottom:4px;">▲ 上部テキスト（白枠内）</div>
+      <div class="pos-grid">
+        <div class="pos-row">
+          <label>↕ 上下</label>
+          <input type="range" id="sl-off-y" min="-5" max="5" value="0" step="0.25" oninput="updatePosLabel();render()">
+          <span class="pos-val" id="lbl-off-y">0</span>
+        </div>
+        <div class="pos-row">
+          <label>↔ 左右</label>
+          <input type="range" id="sl-off-x" min="-5" max="5" value="0" step="0.25" oninput="updatePosLabel();render()">
+          <span class="pos-val" id="lbl-off-x">0</span>
+        </div>
+      </div>
+      <button class="pos-reset" onclick="resetPos()">↺ 上部をリセット</button>
+
+      <div style="font-size:11px;font-weight:bold;color:#2a9d8f;margin:10px 0 4px;">▼ 下部テキスト（白ストライプ）</div>
+      <div class="slider-row" style="margin-bottom:4px;">
+        <label style="font-size:10px;color:#888;min-width:60px;">文字サイズ</label>
+        <input type="range" id="sl-wb2-size" min="50" max="200" value="100" oninput="updatePosLabel();render()">
+        <span class="pos-val" id="lbl-wb2-size">100%</span>
+      </div>
+      <div class="pos-grid">
+        <div class="pos-row">
+          <label>↕ 上下</label>
+          <input type="range" id="sl-off-y2" min="-3" max="3" value="0" step="0.1" oninput="updatePosLabel();render()">
+          <span class="pos-val" id="lbl-off-y2">0</span>
+        </div>
+        <div class="pos-row">
+          <label>↔ 左右</label>
+          <input type="range" id="sl-off-x2" min="-5" max="5" value="0" step="0.25" oninput="updatePosLabel();render()">
+          <span class="pos-val" id="lbl-off-x2">0</span>
+        </div>
+      </div>
+      <button class="pos-reset" onclick="resetPos2()">↺ 下部をリセット</button>
+
+      <div style="font-size:11px;font-weight:bold;color:#2a9d8f;margin:10px 0 4px;">💬 メッセージ位置</div>
+      <div class="pos-grid">
+        <div class="pos-row">
+          <label>↕ 上下</label>
+          <input type="range" id="sl-msg-y" min="20" max="88" value="55" step="0.5" oninput="updatePosLabel();render()">
+          <span class="pos-val" id="lbl-msg-y">55%</span>
+        </div>
+        <div class="pos-row">
+          <label>↔ 左右</label>
+          <input type="range" id="sl-msg-x" min="0" max="50" value="5" step="0.5" oninput="updatePosLabel();render()">
+          <span class="pos-val" id="lbl-msg-x">5%</span>
+        </div>
+      </div>
+      <button class="pos-reset" onclick="resetMsg()">↺ メッセージ位置をリセット</button>
     </div>
 
     <div class="card">
@@ -227,6 +343,7 @@
       <img id="prev-img" src="" alt="デザインを選択してください" style="background:#eee;min-height:200px;">
       <div id="wb-overlay"></div>
       <div id="wb2-overlay"></div>
+      <div id="msg-overlay"></div>
     </div>
   </div>
 </div>
@@ -248,19 +365,85 @@ var FONTS = {
 // 白いボックスの位置（画像比率）
 var WB  = { left:0.058, top:0.1365, width:0.682, height:0.1145 };
 var WB2 = { left:0.02,  top:0.905,  width:0.96,  height:0.085 };
+var BIG_SCALE = 1.3;
 
 var curFont = 'gothic';
 var curDesignIdx = 0;
+var curAlign = 'left';
 
-// ===== フィールド取得 =====
-var BIG_SCALE = 1.3;
+function updatePosLabel() {
+  var oy   = parseFloat(document.getElementById('sl-off-y').value);
+  var ox   = parseFloat(document.getElementById('sl-off-x').value);
+  var oy2  = parseFloat(document.getElementById('sl-off-y2').value);
+  var ox2  = parseFloat(document.getElementById('sl-off-x2').value);
+  var wb2s = parseInt(document.getElementById('sl-wb2-size').value);
+  var my   = parseFloat(document.getElementById('sl-msg-y').value);
+  var mx   = parseFloat(document.getElementById('sl-msg-x').value);
+  document.getElementById('lbl-off-y').textContent   = (oy  >= 0 ? '+' : '') + oy;
+  document.getElementById('lbl-off-x').textContent   = (ox  >= 0 ? '+' : '') + ox;
+  document.getElementById('lbl-off-y2').textContent  = (oy2 >= 0 ? '+' : '') + oy2;
+  document.getElementById('lbl-off-x2').textContent  = (ox2 >= 0 ? '+' : '') + ox2;
+  document.getElementById('lbl-wb2-size').textContent = wb2s + '%';
+  document.getElementById('lbl-msg-y').textContent   = my + '%';
+  document.getElementById('lbl-msg-x').textContent   = mx + '%';
+}
+function resetPos() {
+  document.getElementById('sl-off-y').value = 0;
+  document.getElementById('sl-off-x').value = 0;
+  updatePosLabel(); render();
+}
+function resetPos2() {
+  document.getElementById('sl-off-y2').value = 0;
+  document.getElementById('sl-off-x2').value = 0;
+  document.getElementById('sl-wb2-size').value = 100;
+  updatePosLabel(); render();
+}
+function resetMsg() {
+  document.getElementById('sl-msg-y').value = 55;
+  document.getElementById('sl-msg-x').value = 5;
+  updatePosLabel(); render();
+}
+function validateNum() {
+  var el  = document.getElementById('inp-num');
+  var err = document.getElementById('err-num');
+  var row = document.getElementById('row-num');
+  var val = el.value;
 
-function updateRowStyle(rowId, chkId) {
-  var row = document.getElementById(rowId);
-  var chk = document.getElementById(chkId);
-  row.classList.toggle('field-row-unchecked', !chk.checked);
+  // 全角文字を半角に変換してから、半角英数以外を除去
+  var cleaned = val
+    .replace(/[Ａ-Ｚａ-ｚ０-９]/g, function(c){ return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); })
+    .replace(/[^A-Za-z0-9]/g, '');
+  if (cleaned !== val) { el.value = cleaned; val = cleaned; }
+
+  // エラー判定: 入力ありで10桁でない場合
+  var hasInput = val.length > 0;
+  var isExact10 = val.length === 10;
+  var showErr = hasInput && !isExact10;
+
+  if (showErr) {
+    document.getElementById('err-num-count').textContent = val.length;
+    err.style.display = 'block';
+    row.style.border = '1.5px solid #e63946';
+    row.style.background = '#fff8f8';
+  } else if (isExact10) {
+    err.style.display = 'none';
+    row.style.border = '1.5px solid #2a9d8f';
+    row.style.background = '#f0fffe';
+  } else {
+    err.style.display = 'none';
+    row.style.border = '';
+    row.style.background = '';
+  }
+}
+function setAlign(a) {
+  curAlign = a;
+  ['left','center','right'].forEach(function(x){
+    document.getElementById('align-'+x).classList.toggle('on-teal', x===a);
+  });
+  render();
 }
 
+// ===== フィールド取得 =====
 function getFields() {
   var defs = [
     { id: 'inp-num',   label: '事業所番号', chk: 'chk-num',   big: false },
@@ -270,16 +453,42 @@ function getFields() {
     { id: 'inp-email', label: 'Email',      chk: 'chk-email', big: false }
   ];
   return defs.map(function(d) {
-    return {
-      label:   d.label,
-      value:   document.getElementById(d.id).value.trim(),
-      checked: document.getElementById(d.chk).checked,
-      big:     d.big
-    };
+    return { label: d.label, value: document.getElementById(d.id).value.trim(),
+             checked: document.getElementById(d.chk).checked, big: d.big };
   });
 }
 function getActiveFields() {
   return getFields().filter(function(f){ return f.value !== '' && f.checked; });
+}
+function getAllFilledFields() {
+  return getFields().filter(function(f){ return f.value !== ''; });
+}
+
+// ===== メッセージオーバーレイ描画 =====
+function renderMsg(imgW, imgH, fontFam) {
+  var ov  = document.getElementById('msg-overlay');
+  var inp = document.getElementById('inp-msg');
+  var msg = inp ? inp.value.trim() : '';
+  ov.innerHTML = '';
+  if (!msg) return;
+
+  var sz      = parseInt(document.getElementById('sl-msg-size').value || 12);
+  var color   = document.getElementById('msg-color').value;
+  var posY    = parseFloat(document.getElementById('sl-msg-y').value || 55);
+  var posX    = parseFloat(document.getElementById('sl-msg-x').value || 5);
+  var fs      = sz * imgW / 1000;
+
+  ov.style.top    = posY + '%';
+  ov.style.left   = posX + '%';
+  ov.style.width  = (100 - posX * 2) + '%';
+
+  var el = document.createElement('div');
+  el.className   = 'msg-text';
+  el.style.fontFamily = fontFam;
+  el.style.fontSize   = fs + 'px';
+  el.style.color      = color;
+  el.textContent = msg;
+  ov.appendChild(el);
 }
 
 // ===== デザインカード生成 =====
@@ -339,18 +548,22 @@ function render() {
   var imgW   = imgEl.clientWidth  || 500;
   var imgH   = imgEl.clientHeight || 707;
 
-  // 白いボックスの実際のピクセルサイズ（プレビュー上）
-  var wbH_px = imgH * WB.height; // 白いボックスの高さ(px)
+  // メッセージ文字数カウント更新
+  var msgEl  = document.getElementById('inp-msg');
+  document.getElementById('msg-count').textContent = msgEl ? msgEl.value.length : 0;
 
-  // プレビュー用フォントサイズ（画像1000pxに対してszのpx）
+  // 下部WB2もレンダリング
+  renderWB2(imgW, imgH, fontFam, txtColor);
+
+  // メッセージオーバーレイ
+  renderMsg(imgW, imgH, fontFam);
+
+  var wbH_px = imgH * WB.height;
   var previewSz = sz * imgW / 1000;
 
-  // フィールド数に応じてラインハイトを自動調整
-  // 有効フィールドの実効行数（big フィールドは BIG_SCALE 倍の高さ）
-  var effectiveN = fields.length > 0
-    ? fields.reduce(function(acc, f){ return acc + (f.big ? BIG_SCALE : 1); }, 0)
-    : 1;
-
+  // effectiveN: bigフィールドはBIG_SCALE分の行高を取る
+  var effectiveN = fields.reduce(function(acc, f){ return acc + (f.big ? BIG_SCALE : 1); }, 0);
+  effectiveN = Math.max(effectiveN, 1);
   var lineH = previewSz * 1.35;
   var totalH = lineH * effectiveN;
   if (totalH > wbH_px * 0.92) {
@@ -358,12 +571,19 @@ function render() {
     previewSz = lineH / 1.35;
   }
 
-  // 垂直中央配置のためのオフセット
   var totalH2 = lineH * effectiveN;
   var startOffset = (wbH_px - totalH2) / 2;
 
   var ov = document.getElementById('wb-overlay');
   ov.innerHTML = '';
+  var offY = parseFloat(document.getElementById('sl-off-y').value || 0);
+  var offX = parseFloat(document.getElementById('sl-off-x').value || 0);
+  ov.style.paddingTop = '';
+  ov.style.paddingBottom = '';
+  ov.style.justifyContent = 'center';
+  ov.style.alignItems = curAlign === 'left' ? 'flex-start' : (curAlign === 'right' ? 'flex-end' : 'center');
+  ov.style.top = (13.65 + offY) + '%';
+  ov.style.left = (5.8 + offX) + '%';
 
   if (!fields.length) {
     var ph = document.createElement('div');
@@ -374,101 +594,107 @@ function render() {
     return;
   }
 
-  // 垂直パディング（中央揃えのため）
   ov.style.paddingTop = startOffset + 'px';
   ov.style.paddingBottom = startOffset + 'px';
   ov.style.justifyContent = 'flex-start';
-  ov.style.gap = '0';
+  ov.style.alignItems = curAlign === 'left' ? 'flex-start' : (curAlign === 'right' ? 'flex-end' : 'center');
 
-  fields.forEach(function(f, idx) {
+  fields.forEach(function(f) {
     var scale = f.big ? BIG_SCALE : 1;
-    var fSize = previewSz * scale;
+    var fs = previewSz * scale;
+    var lh = lineH * scale;
     var el = document.createElement('div');
     el.className = 'wb-line';
     el.style.fontFamily   = fontFam;
-    el.style.fontSize     = fSize + 'px';
+    el.style.fontSize     = fs + 'px';
     el.style.color        = txtColor;
     el.style.lineHeight   = '1';
-    el.style.marginBottom = (lineH * scale - fSize) + 'px';
+    el.style.marginBottom = (lh - fs * 1.0) * 0.5 + 'px';
+    el.style.marginTop    = (lh - fs * 1.0) * 0.5 + 'px';
     el.textContent        = f.value;
     ov.appendChild(el);
   });
-
-  // ===== 下部エリア (WB2) に全フィールドを表示 =====
-  renderWB2(imgW, imgH, fontFam, txtColor);
 }
 
+// ===== 下部白エリア（WB2）レンダリング =====
+// レイアウト:
+//   上段: 事業所名（中央・大）
+//   下段: 左列=事業所番号・事業所住所 / 右列=電話番号・メールアドレス
 function renderWB2(imgW, imgH, fontFam, txtColor) {
-  var allFields = getFields().filter(function(f){ return f.value !== ''; });
+  var allFields = getAllFilledFields();
   var ov2 = document.getElementById('wb2-overlay');
   ov2.innerHTML = '';
+  // 下部位置オフセット反映
+  var offY2 = parseFloat((document.getElementById('sl-off-y2') || {value:'0'}).value || 0);
+  var offX2 = parseFloat((document.getElementById('sl-off-x2') || {value:'0'}).value || 0);
+  ov2.style.top  = (90.2 + offY2) + '%';
+  ov2.style.left = (1    + offX2) + '%';
   if (!allFields.length) return;
 
-  // 事業所名 と それ以外 を分離
-  var nameField   = allFields.filter(function(f){ return f.label === '事業所名'; })[0] || null;
-  var otherFields = allFields.filter(function(f){ return f.label !== '事業所名'; });
+  var nameField = allFields.filter(function(f){ return f.label === '事業所名'; })[0] || null;
+  // 左列: 事業所番号・事業所住所
+  var leftFields  = allFields.filter(function(f){
+    return f.label === '事業所番号' || f.label === '事業所住所';
+  });
+  // 右列: 電話番号・メールアドレス
+  var rightFields = allFields.filter(function(f){
+    return f.label === '電話番号' || f.label === 'Email';
+  });
 
-  // 行数計算（名前行1行 ＋ その他ceil(n/2)行）
-  var nameRows  = nameField  ? 1 : 0;
-  var otherRows = Math.ceil(otherFields.length / 2);
-  var totalRows = Math.max(nameRows + otherRows, 1);
+  var hasOther = leftFields.length > 0 || rightFields.length > 0;
+  var wbH2_px  = imgH * WB2.height;
+  var wb2Scale = parseInt((document.getElementById('sl-wb2-size') || {value:'100'}).value || 100) / 100;
 
-  var wbH2_px = imgH * WB2.height;
-  var rowH    = wbH2_px * 0.88 / totalRows;
+  // フォントサイズ計算（倍率適用）
+  var nameRowH  = nameField && hasOther ? wbH2_px * 0.40 : wbH2_px * 0.80;
+  var otherRowH = hasOther  ? wbH2_px * 0.52 : 0;
+  var nameFs    = Math.min(nameRowH  / 1.3, imgW * 0.036) * wb2Scale;
+  var maxOtherRows = Math.max(leftFields.length, rightFields.length, 1);
+  var otherFs   = Math.min(otherRowH / maxOtherRows / 1.3, imgW * 0.022) * wb2Scale;
 
-  // フォントサイズ
-  var nameFs  = Math.min(rowH / 1.35, imgW * 0.040);
-  var otherFs = Math.min(rowH * 0.72 / 1.35, imgW * 0.028);
-
-  var labelMap = {
-    '事業所番号': '番号',
-    '事業所住所': '住所',
-    '電話番号':   'TEL',
-    'Email':      'Mail'
-  };
-
-  // ── 事業所名行（全幅・中央）──
+  // --- 事業所名 行 ---
   if (nameField) {
     var nameRow = document.createElement('div');
     nameRow.className = 'wb2-name-row';
     nameRow.style.fontFamily = fontFam;
     nameRow.style.fontSize   = nameFs + 'px';
-    nameRow.style.lineHeight = rowH + 'px';
-    nameRow.style.color      = '#111';
+    nameRow.style.color      = txtColor;
     nameRow.textContent      = nameField.value;
     ov2.appendChild(nameRow);
   }
 
-  // ── その他フィールド（2列グリッド・中央揃い）──
-  for (var r = 0; r < otherRows; r++) {
-    var gridRow = document.createElement('div');
-    gridRow.className = 'wb2-grid-row';
-    gridRow.style.lineHeight = (rowH * 0.80) + 'px';
+  // --- 左右2列 行 ---
+  if (hasOther) {
+    var colsRow = document.createElement('div');
+    colsRow.className = 'wb2-cols-row';
 
-    for (var c = 0; c < 2; c++) {
-      var idx = r * 2 + c;
-      if (idx >= otherFields.length) break;
-      var f = otherFields[idx];
-
-      var item = document.createElement('div');
-      item.className = 'wb2-item';
-      item.style.fontFamily = fontFam;
-      item.style.fontSize   = otherFs + 'px';
-
-      var lbl = document.createElement('span');
-      lbl.className = 'wb2-label';
-      lbl.style.fontSize = (otherFs * 0.80) + 'px';
-      lbl.textContent = (labelMap[f.label] || f.label) + '：';
-
-      var val = document.createElement('span');
-      val.className = 'wb2-val';
-      val.textContent = f.value;
-
-      item.appendChild(lbl);
-      item.appendChild(val);
-      gridRow.appendChild(item);
+    function makeCol(fields, colClass) {
+      var col = document.createElement('div');
+      col.className = 'wb2-col ' + colClass;
+      fields.forEach(function(f) {
+        var item = document.createElement('div');
+        item.className = 'wb2-item';
+        var lbl = document.createElement('span');
+        lbl.className = 'wb2-label';
+        lbl.style.fontFamily = fontFam;
+        lbl.style.fontSize   = otherFs * 0.78 + 'px';
+        lbl.textContent = f.label + '：';
+        var val = document.createElement('span');
+        val.className = 'wb2-val';
+        val.style.fontFamily = fontFam;
+        val.style.fontSize   = otherFs + 'px';
+        val.style.color      = txtColor;
+        val.textContent = f.value;
+        item.appendChild(lbl);
+        item.appendChild(val);
+        col.appendChild(item);
+      });
+      return col;
     }
-    ov2.appendChild(gridRow);
+
+    colsRow.appendChild(makeCol(leftFields,  'wb2-col-left'));
+    colsRow.appendChild(makeCol(rightFields, 'wb2-col-right'));
+    ov2.appendChild(colsRow);
   }
 }
 
@@ -523,114 +749,169 @@ async function dlPDF(mode) {
 
     // ====== 白いボックスにテキストを描画 ======
     // 白いボックスの座標（ピクセル）
-    var wbX = iw * WB.left;
-    var wbY = ih * WB.top;
+    var offY_pdf = parseFloat(document.getElementById('sl-off-y').value || 0);
+    var offX_pdf = parseFloat(document.getElementById('sl-off-x').value || 0);
+    var wbX = iw * (WB.left + offX_pdf / 100);
+    var wbY = ih * (WB.top  + offY_pdf / 100);
     var wbW = iw * WB.width;
     var wbH = ih * WB.height;
 
-    // 有効フィールドの実効行数（big フィールドは BIG_SCALE 倍の高さ）
-    var effectiveN = fields.reduce(function(acc, f){ return acc + (f.big ? BIG_SCALE : 1); }, 0);
+    var n = fields.length;
 
     // フォントサイズ（ピクセル）- 自動調整
     var fontSize = sz * iw / 1000;
     var lineH    = fontSize * 1.35;
-    var totalH   = lineH * effectiveN;
+    var totalH   = lineH * n;
 
     // ボックスに収まらない場合は縮小
     if (totalH > wbH * 0.92) {
-      lineH    = wbH * 0.92 / effectiveN;
+      lineH    = wbH * 0.92 / n;
       fontSize = lineH / 1.35;
     }
 
-    // 垂直中央配置（最初のフィールドのベースライン）
-    var firstScale = fields[0].big ? BIG_SCALE : 1;
-    var startY = wbY + (wbH - lineH * effectiveN) / 2 + fontSize * firstScale * 0.85;
+    // 垂直中央配置
+    var startY = wbY + (wbH - lineH * n) / 2 + fontSize * 0.85;
     var textX  = wbX + fontSize * 0.4;
 
-    ctx.fillStyle    = txtColor;
+    ctx.font = 'bold ' + fontSize + 'px ' + fontFam;
+    ctx.fillStyle  = txtColor;
     ctx.textBaseline = 'alphabetic';
+    ctx.textAlign = 'left';
 
-    var currentY = startY;
+    // テキスト揃え
+    var alignX = textX;
+    if (curAlign === 'center') alignX = wbX + wbW / 2;
+    if (curAlign === 'right')  alignX = wbX + wbW - fontSize * 0.4;
+    if (curAlign === 'center' || curAlign === 'right') {
+      ctx.textAlign = curAlign;
+    }
+
     fields.forEach(function(f, i) {
       var scale = f.big ? BIG_SCALE : 1;
-      var fSize = fontSize * scale;
-      ctx.font = 'bold ' + fSize + 'px ' + fontFam;
-      ctx.fillText(f.value, textX, currentY);
-      // 次のフィールドの先頭位置（このフィールドの高さ分進む）
-      if (i < fields.length - 1) {
-        var nextScale = fields[i+1].big ? BIG_SCALE : 1;
-        currentY += lineH * scale * 0.5 + lineH * nextScale * 0.5 + (lineH * scale - fontSize * scale) * 0.5;
-      }
+      var fs = fontSize * scale;
+      var lh = lineH  * scale;
+      ctx.font = 'bold ' + fs + 'px ' + fontFam;
+      ctx.fillText(f.value, alignX, startY + lineH * i + lh / 2 - fs * 0.15);
     });
+    ctx.textAlign = 'left';
 
-    // ====== WB2（下部エリア）事業所名は大きく・他は2列中央揃い ======
-    var allFields2 = getFields().filter(function(f){ return f.value !== ''; });
+    // ====== 下部白エリア（WB2）にテキストを描画 ======
+    // レイアウト: 事業所名（中央上）/ 左列=番号・住所 / 右列=電話・メール
+    var allFields2 = getAllFilledFields();
     if (allFields2.length > 0) {
-      var wbX2 = iw * WB2.left;
-      var wbY2 = ih * WB2.top;
-      var wbW2 = iw * WB2.width;
-      var wbH2 = ih * WB2.height;
+      var offY2_pdf = parseFloat((document.getElementById('sl-off-y2') || {value:'0'}).value || 0);
+      var offX2_pdf = parseFloat((document.getElementById('sl-off-x2') || {value:'0'}).value || 0);
+      var wb2X = iw * (WB2.left + offX2_pdf / 100);
+      var wb2Y = ih * (WB2.top  + offY2_pdf / 100);
+      var wb2W = iw * WB2.width;
+      var wb2H = ih * WB2.height;
 
-      var nameField2   = allFields2.filter(function(f){ return f.label === '事業所名'; })[0] || null;
-      var otherFields2 = allFields2.filter(function(f){ return f.label !== '事業所名'; });
-      var nameRows2  = nameField2 ? 1 : 0;
-      var otherRows2 = Math.ceil(otherFields2.length / 2);
-      var totalRows2 = Math.max(nameRows2 + otherRows2, 1);
+      var nameField2  = allFields2.filter(function(f){ return f.label === '事業所名'; })[0] || null;
+      var leftFields2 = allFields2.filter(function(f){
+        return f.label === '事業所番号' || f.label === '事業所住所';
+      });
+      var rightFields2= allFields2.filter(function(f){
+        return f.label === '電話番号' || f.label === 'Email';
+      });
+      var hasOther2   = leftFields2.length > 0 || rightFields2.length > 0;
 
-      var rowH2   = wbH2 * 0.88 / totalRows2;
-      var nameFs2 = Math.min(rowH2 / 1.35, iw * 0.040);
-      var othFs2  = Math.min(rowH2 * 0.72 / 1.35, iw * 0.028);
-      var lhName  = rowH2;
-      var lhOth   = rowH2 * 0.80;
+      var nameRowH2  = nameField2 && hasOther2 ? wb2H * 0.40 : wb2H * 0.80;
+      var otherRowH2 = hasOther2 ? wb2H * 0.52 : 0;
+      var nameFs2    = Math.min(nameRowH2 / 1.3, iw * 0.036);
+      var maxRows2   = Math.max(leftFields2.length, rightFields2.length, 1);
+      var otherFs2   = Math.min(otherRowH2 / maxRows2 / 1.3, iw * 0.022);
 
-      var totalH2b = nameRows2 * lhName + otherRows2 * lhOth;
-      var baseY2   = wbY2 + (wbH2 - totalH2b) / 2;
-      var curY2    = baseY2;
+      ctx.textBaseline = 'middle';
 
-      var labelMap2 = { '事業所番号':'番号', '事業所住所':'住所', '電話番号':'TEL', 'Email':'Mail' };
+      var startWb2Y = wb2Y + wb2H * 0.08;
 
-      ctx.textBaseline = 'alphabetic';
-
-      // 事業所名（全幅中央）
+      // 事業所名（中央）
       if (nameField2) {
-        ctx.font      = 'bold ' + nameFs2 + 'px ' + fontFam;
-        ctx.fillStyle = '#111';
+        ctx.font = 'bold ' + nameFs2 + 'px ' + fontFam;
+        ctx.fillStyle = txtColor;
         ctx.textAlign = 'center';
-        ctx.fillText(nameField2.value, wbX2 + wbW2 / 2, curY2 + nameFs2 * 0.85);
-        curY2 += lhName;
+        ctx.fillText(nameField2.value, wb2X + wb2W / 2, startWb2Y + nameRowH2 / 2);
+        startWb2Y += nameRowH2;
       }
 
-      // 他フィールド（2列・各列中央）
-      var colW2 = wbW2 / 2;
-      for (var r2 = 0; r2 < otherRows2; r2++) {
-        var y2 = curY2 + othFs2 * 0.85;
-        for (var c2 = 0; c2 < 2; c2++) {
-          var fi2 = r2 * 2 + c2;
-          if (fi2 >= otherFields2.length) break;
-          var f2  = otherFields2[fi2];
-          var lbl2 = (labelMap2[f2.label] || f2.label) + '：';
-          var colCx = wbX2 + colW2 * c2 + colW2 / 2; // 列の中心
+      // 左右2列
+      if (hasOther2) {
+        var colW = wb2W / 2;
+        var leftX  = wb2X + colW * 0.06;
+        var rightX = wb2X + colW + colW * 0.08;
+        var rowStep2 = otherRowH2 / maxRows2;
 
-          // ラベル幅を計算して中央からオフセット
-          ctx.font = 'bold ' + (othFs2 * 0.78) + 'px ' + fontFam;
-          var lblW2 = ctx.measureText(lbl2).width;
-          ctx.font = '' + othFs2 + 'px ' + fontFam;
-          var valW2 = ctx.measureText(f2.value).width;
-          var totalW2 = lblW2 + valW2;
-          var startX2 = colCx - totalW2 / 2;
-
-          ctx.textAlign = 'left';
-          ctx.font      = 'bold ' + (othFs2 * 0.78) + 'px ' + fontFam;
-          ctx.fillStyle = '#2a9d8f';
-          ctx.fillText(lbl2, startX2, y2);
-
-          ctx.font      = '' + othFs2 + 'px ' + fontFam;
-          ctx.fillStyle = '#222';
-          ctx.fillText(f2.value, startX2 + lblW2, y2);
+        // 左列: 右揃え（ラベル+値を右端に寄せる）
+        function drawColRight(fields, rightEdgeX) {
+          fields.forEach(function(f2, ri) {
+            var midY = startWb2Y + rowStep2 * ri + rowStep2 / 2;
+            ctx.font = '' + otherFs2 + 'px ' + fontFam;
+            var valW = ctx.measureText(f2.value).width;
+            ctx.font = 'bold ' + (otherFs2 * 0.78) + 'px ' + fontFam;
+            var lblW = ctx.measureText(f2.label + '：').width;
+            var totalW = lblW + valW;
+            var x = rightEdgeX - totalW;
+            ctx.fillStyle = '#2a9d8f';
+            ctx.textAlign = 'left';
+            ctx.fillText(f2.label + '：', x, midY);
+            ctx.font = '' + otherFs2 + 'px ' + fontFam;
+            ctx.fillStyle = txtColor;
+            ctx.fillText(f2.value, x + lblW, midY);
+          });
         }
-        curY2 += lhOth;
+        // 右列: 左揃え（ラベル+値を左端から始める）
+        function drawColLeft(fields, startX) {
+          fields.forEach(function(f2, ri) {
+            var midY = startWb2Y + rowStep2 * ri + rowStep2 / 2;
+            ctx.font = 'bold ' + (otherFs2 * 0.78) + 'px ' + fontFam;
+            ctx.fillStyle = '#2a9d8f';
+            ctx.textAlign = 'left';
+            var lblW = ctx.measureText(f2.label + '：').width;
+            ctx.fillText(f2.label + '：', startX, midY);
+            ctx.font = '' + otherFs2 + 'px ' + fontFam;
+            ctx.fillStyle = txtColor;
+            ctx.fillText(f2.value, startX + lblW, midY);
+          });
+        }
+
+        var divXpdf = wb2X + wb2W / 2;
+        drawColRight(leftFields2,  divXpdf - iw * 0.01);   // 左列: 中央線より少し左まで
+        drawColLeft (rightFields2, divXpdf + iw * 0.01);   // 右列: 中央線より少し右から
+
+        // 中央の仕切り線
+        var divX = wb2X + wb2W / 2;
+        ctx.strokeStyle = '#d4eeeb';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(divX, startWb2Y + otherRowH2 * 0.05);
+        ctx.lineTo(divX, startWb2Y + otherRowH2 * 0.95);
+        ctx.stroke();
       }
-      ctx.textAlign = 'left'; // リセット
+
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'alphabetic';
+    }
+
+    // ====== メッセージをキャンバスに描画 ======
+    var msgInp = document.getElementById('inp-msg');
+    var msgTxt = msgInp ? msgInp.value.trim() : '';
+    if (msgTxt) {
+      var msgSz    = parseInt(document.getElementById('sl-msg-size').value || 12);
+      var msgColor = document.getElementById('msg-color').value;
+      var msgPosY  = parseFloat(document.getElementById('sl-msg-y').value || 55) / 100;
+      var msgPosX  = parseFloat(document.getElementById('sl-msg-x').value || 5)  / 100;
+      var msgFs    = msgSz * iw / 1000;
+      ctx.font         = 'bold ' + msgFs + 'px ' + fontFam;
+      ctx.fillStyle    = msgColor;
+      ctx.textAlign    = 'center';
+      ctx.textBaseline = 'middle';
+      var lines = msgTxt.split('\n');
+      lines.forEach(function(line, li) {
+        ctx.fillText(line, iw * (msgPosX + (1 - msgPosX*2) / 2),
+                          ih * msgPosY + li * msgFs * 1.6);
+      });
+      ctx.textAlign    = 'left';
+      ctx.textBaseline = 'alphabetic';
     }
 
     // PDF出力（A4比率）

@@ -133,7 +133,7 @@
     .chk-note-title{font-size:11px;font-weight:bold;color:#2a9d8f;margin-bottom:4px;}
 
     /* 位置微調整 */
-    .pos-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 8px;margin-top:4px;}
+    .pos-grid{display:grid;grid-template-columns:1fr;gap:4px;margin-top:4px;}
     .pos-row{display:flex;align-items:center;gap:4px;}
     .pos-row label{font-size:10px;color:#888;min-width:28px;white-space:nowrap;}
     .pos-row input[type=range]{flex:1;accent-color:#2a9d8f;height:3px;}
@@ -650,6 +650,7 @@ function render() {
     var ph = document.createElement('div');
     ph.className = 'wb-line wb-ph';
     ph.style.fontSize = (previewSz * 0.85) + 'px';
+    ph.style.textAlign = curAlign;
     ph.textContent = '事業所情報を入力してください';
     ov.appendChild(ph);
     return;
@@ -670,6 +671,7 @@ function render() {
     el.style.fontSize     = fs + 'px';
     el.style.color        = txtColor;
     el.style.lineHeight   = '1';
+    el.style.textAlign    = curAlign;
     el.style.marginBottom = (lh - fs * 1.0) * 0.5 + 'px';
     el.style.marginTop    = (lh - fs * 1.0) * 0.5 + 'px';
     el.textContent        = f.value;

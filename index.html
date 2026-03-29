@@ -956,6 +956,10 @@ async function dlPDF(mode) {
     }
 
     // ====== メッセージをキャンバスに描画 ======
+    // プレビューCSS: ov.style.top = posY% → ボックス上端がposY%
+    // プレビューCSS: padding 4px 8px (枠あり) / 0 (枠なし)
+    // プレビューCSS: .msg-text white-space:pre-wrap; word-break:break-all;
+    // → PDFでもこれに一致させる
     var msgInp = document.getElementById('inp-msg');
     var msgTxt = msgInp ? msgInp.value.trim() : '';
     if (msgTxt) {
@@ -970,9 +974,19 @@ async function dlPDF(mode) {
       var msgBorderColor = (document.getElementById('msg-border-color') || {value:'#111111'}).value;
       var msgBorderW     = parseInt((document.getElementById('sl-msg-border-w') || {value:'2'}).value || 2);
 
-      // 自動折り返し（段落ごとに処理）
       ctx.font = 'bold ' + msgFs + 'px ' + fontFam;
-      var maxLineW = iw * msgPosW - msgFs * 0.6;
+
+      // ボックスの基準座標（プレビューのoverlayと一致）
+      var boxX    = iw * msgPosX;
+      var boxY    = ih * msgPosY;   // ← ボックス上端 = CSSのtop
+      var boxW    = iw * msgPosW;
+
+      // パディング（枠ありの場合のみ、プレビューのpadding: 4px 8pxに相当）
+      var padV = msgHasBorder ? msgFs * 0.35 : 0;
+      var padH = msgHasBorder ? msgFs * 0.6  : msgFs * 0.1;
+
+      // 自動折り返し（段落ごとに処理）
+      var maxLineW = boxW - padH * 2;
       var wrappedLines = [];
       msgTxt.split('\n').forEach(function(para) {
         if (!para) { wrappedLines.push(''); return; }
@@ -993,31 +1007,29 @@ async function dlPDF(mode) {
         }
       });
 
-      var lineStep = msgFs * 1.6;
-      var padV     = msgFs * 0.5;  // 上下パディング
-      var padH     = msgFs * 0.4;  // 左右パディング
-      var boxTopY  = ih * msgPosY - padV;
-      var boxH     = wrappedLines.length * lineStep + padV * 2;
-      var boxX     = iw * msgPosX;
-      var boxW     = iw * msgPosW;
+      var lineH   = msgFs * 1.5;   // line-height:1.5 に合わせる
+      var textH   = wrappedLines.length * lineH;
+      var totalH  = textH + padV * 2;
 
-      // 枠線描画
+      // 枠線描画（ボックス上端=boxY）
       if (msgHasBorder) {
         ctx.strokeStyle = msgBorderColor;
         ctx.lineWidth   = msgBorderW * iw / 500;
-        ctx.strokeRect(boxX, boxTopY, boxW, boxH);
+        ctx.strokeRect(boxX, boxY, boxW, totalH);
       }
 
-      // テキスト描画
+      // テキスト描画（ボックス上端+パディングから開始）
       ctx.fillStyle    = msgColor;
       ctx.textBaseline = 'top';
+      var textStartY   = boxY + padV;
+
       var msgDrawX;
       if (msgAlign === 'center')     { ctx.textAlign = 'center'; msgDrawX = boxX + boxW / 2; }
       else if (msgAlign === 'right') { ctx.textAlign = 'right';  msgDrawX = boxX + boxW - padH; }
       else                           { ctx.textAlign = 'left';   msgDrawX = boxX + padH; }
 
       wrappedLines.forEach(function(line, li) {
-        ctx.fillText(line, msgDrawX, ih * msgPosY + li * lineStep);
+        ctx.fillText(line, msgDrawX, textStartY + li * lineH);
       });
       ctx.textAlign    = 'left';
       ctx.textBaseline = 'alphabetic';

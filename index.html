@@ -292,17 +292,37 @@
         <button class="pos-reset" style="margin-top:2px;" onclick="resetMsg()">↺ リセット</button>
       </div>
 
-      <!-- 文字サイズ・色 -->
+      <!-- 文字サイズ・色・揃え・枠線 -->
       <div class="slider-row" style="margin-top:8px;">
         <label>文字サイズ</label>
         <input type="range" id="sl-msg-size" min="6" max="30" value="12" oninput="updatePosLabel();render()">
         <span class="slider-val" id="lbl-msg-size">12</span>
       </div>
-      <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
+      <div style="display:flex;align-items:center;gap:6px;margin-top:8px;flex-wrap:wrap;">
         <span style="font-size:11px;color:#888;">文字色：</span>
         <button id="mc-black" class="align-btn on-teal" onclick="setMsgColor('#111111')">黒</button>
         <button id="mc-white" class="align-btn"         onclick="setMsgColor('#ffffff')">白</button>
         <input type="hidden" id="msg-color" value="#111111">
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;margin-top:8px;">
+        <span style="font-size:11px;color:#888;">揃え：</span>
+        <button id="ma-left"   class="align-btn on-teal" onclick="setMsgAlign('left')"  >左</button>
+        <button id="ma-center" class="align-btn"         onclick="setMsgAlign('center')">中</button>
+        <button id="ma-right"  class="align-btn"         onclick="setMsgAlign('right')" >右</button>
+        <input type="hidden" id="msg-align" value="left">
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
+        <span style="font-size:11px;color:#888;">枠線：</span>
+        <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:11px;color:#555;">
+          <input type="checkbox" id="msg-border" onchange="render()" style="accent-color:#2a9d8f;">
+          表示する
+        </label>
+        <select id="msg-border-color" onchange="render()" style="font-size:11px;border:1px solid #ddd;border-radius:4px;padding:2px;">
+          <option value="#111111">黒</option>
+          <option value="#ffffff">白</option>
+          <option value="#2a9d8f">ティール</option>
+        </select>
+        <input type="range" id="sl-msg-border-w" min="1" max="8" value="2" style="width:50px;accent-color:#2a9d8f;" oninput="render()" title="枠線の太さ">
       </div>
     </div>
 
@@ -444,6 +464,13 @@ function validateNum() {
     row.style.background = '';
   }
 }
+function setMsgAlign(a) {
+  document.getElementById('msg-align').value = a;
+  ['left','center','right'].forEach(function(x){
+    document.getElementById('ma-'+x).classList.toggle('on-teal', x===a);
+  });
+  render();
+}
 function setMsgColor(c) {
   document.getElementById('msg-color').value = c;
   document.getElementById('mc-black').classList.toggle('on-teal', c === '#111111');
@@ -485,26 +512,43 @@ function renderMsg(imgW, imgH, fontFam) {
   var inp = document.getElementById('inp-msg');
   var msg = inp ? inp.value.trim() : '';
   ov.innerHTML = '';
-  if (!msg) return;
 
-  var sz      = parseInt(document.getElementById('sl-msg-size').value || 12);
-  var color   = document.getElementById('msg-color').value;
-  var posY    = parseFloat(document.getElementById('sl-msg-y').value || 55);
-  var posX    = parseFloat(document.getElementById('sl-msg-x').value || 10);
-  var posW    = parseFloat((document.getElementById('sl-msg-w') || {value:'80'}).value || 80);
-  var fs      = sz * imgW / 1000;
+  var sz          = parseInt(document.getElementById('sl-msg-size').value || 12);
+  var color       = document.getElementById('msg-color').value;
+  var align       = (document.getElementById('msg-align') || {value:'left'}).value || 'left';
+  var hasBorder   = document.getElementById('msg-border') && document.getElementById('msg-border').checked;
+  var borderColor = (document.getElementById('msg-border-color') || {value:'#111111'}).value;
+  var borderW     = parseInt((document.getElementById('sl-msg-border-w') || {value:'2'}).value || 2);
+  var posY        = parseFloat(document.getElementById('sl-msg-y').value || 55);
+  var posX        = parseFloat(document.getElementById('sl-msg-x').value || 10);
+  var posW        = parseFloat((document.getElementById('sl-msg-w') || {value:'80'}).value || 80);
+  var fs          = sz * imgW / 1000;
 
   ov.style.top    = posY + '%';
   ov.style.left   = posX + '%';
   ov.style.width  = posW + '%';
 
+  // 枠線スタイル（テキスト未入力でも枠は表示）
+  if (hasBorder) {
+    ov.style.border        = borderW + 'px solid ' + borderColor;
+    ov.style.borderRadius  = '4px';
+    ov.style.padding       = '4px 8px';
+    ov.style.boxSizing     = 'border-box';
+  } else {
+    ov.style.border        = 'none';
+    ov.style.padding       = '0';
+  }
+
+  if (!msg) return;
+
   var el = document.createElement('div');
-  el.className   = 'msg-text';
-  el.style.width  = '100%';
+  el.className        = 'msg-text';
+  el.style.width      = '100%';
   el.style.fontFamily = fontFam;
   el.style.fontSize   = fs + 'px';
   el.style.color      = color;
-  el.textContent = msg;
+  el.style.textAlign  = align;
+  el.textContent      = msg;
   ov.appendChild(el);
 }
 
@@ -923,11 +967,30 @@ async function dlPDF(mode) {
       ctx.fillStyle    = msgColor;
       ctx.textAlign    = 'center';
       ctx.textBaseline = 'middle';
-      ctx.textAlign = 'center';
-      var msgCenterX = iw * (msgPosX + msgPosW / 2);
+      var msgAlign       = (document.getElementById('msg-align') || {value:'left'}).value || 'left';
+      var msgHasBorder   = document.getElementById('msg-border') && document.getElementById('msg-border').checked;
+      var msgBorderColor = (document.getElementById('msg-border-color') || {value:'#111111'}).value;
+      var msgBorderW     = parseInt((document.getElementById('sl-msg-border-w') || {value:'2'}).value || 2);
+
+      // 枠線描画
+      if (msgHasBorder) {
+        ctx.strokeStyle = msgBorderColor;
+        ctx.lineWidth   = msgBorderW * iw / 500;
+        var lines2 = msgTxt.split('\n');
+        var boxH = lines2.length * msgFs * 1.6 + msgFs * 0.6;
+        ctx.strokeRect(iw * msgPosX, ih * msgPosY - msgFs * 0.9,
+                       iw * msgPosW, boxH);
+      }
+
+      // テキスト揃え
+      var msgDrawX;
+      if (msgAlign === 'center')     { ctx.textAlign = 'center'; msgDrawX = iw * (msgPosX + msgPosW / 2); }
+      else if (msgAlign === 'right') { ctx.textAlign = 'right';  msgDrawX = iw * (msgPosX + msgPosW) - msgFs * 0.3; }
+      else                           { ctx.textAlign = 'left';   msgDrawX = iw * msgPosX + msgFs * 0.3; }
+
       var lines = msgTxt.split('\n');
       lines.forEach(function(line, li) {
-        ctx.fillText(line, msgCenterX, ih * msgPosY + li * msgFs * 1.6);
+        ctx.fillText(line, msgDrawX, ih * msgPosY + li * msgFs * 1.6);
       });
       ctx.textAlign    = 'left';
       ctx.textBaseline = 'alphabetic';

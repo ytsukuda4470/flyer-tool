@@ -236,11 +236,11 @@
         <span class="slider-val" id="lbl-size">22</span>
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;flex-wrap:wrap;gap:6px;">
-        <div style="font-size:11px;color:#888;">文字色：
-          <select id="txt-color" onchange="render()" style="font-size:11px;border:1px solid #ddd;border-radius:4px;padding:2px;">
-            <option value="#111">黒</option>
-            <option value="#2a9d8f">ティール</option>
-          </select>
+        <div style="display:flex;align-items:center;gap:4px;">
+          <span style="font-size:11px;color:#888;">文字色：</span>
+          <input type="hidden" id="txt-color" value="#2a9d8f">
+          <button id="tc-black" class="align-btn"         onclick="setTxtColor('#111111')">黒</button>
+          <button id="tc-teal"  class="align-btn on-teal" onclick="setTxtColor('#2a9d8f')">ティール</button>
         </div>
         <div style="display:flex;align-items:center;gap:4px;">
           <span style="font-size:11px;color:#888;">揃え：</span>
@@ -515,9 +515,11 @@ function renderMsg(imgW, imgH, fontFam) {
 
   var sz          = parseInt(document.getElementById('sl-msg-size').value || 12);
   var color       = document.getElementById('msg-color').value;
+  if (curColorMode === 'bw') color = '#111111';
   var align       = (document.getElementById('msg-align') || {value:'left'}).value || 'left';
   var hasBorder   = document.getElementById('msg-border') && document.getElementById('msg-border').checked;
   var borderColor = (document.getElementById('msg-border-color') || {value:'#111111'}).value;
+  if (curColorMode === 'bw') borderColor = '#111111';
   var borderW     = parseInt((document.getElementById('sl-msg-border-w') || {value:'2'}).value || 2);
   var posY        = parseFloat(document.getElementById('sl-msg-y').value || 55);
   var posX        = parseFloat(document.getElementById('sl-msg-x').value || 10);
@@ -589,11 +591,22 @@ function setFont(name) {
   render();
 }
 
-// ===== カラー =====
+// ===== 文字色ボタン =====
+function setTxtColor(c) {
+  document.getElementById('txt-color').value = c;
+  document.getElementById('tc-black').classList.toggle('on-teal', c === '#111111');
+  document.getElementById('tc-teal').classList.toggle('on-teal', c === '#2a9d8f');
+  render();
+}
+
+// ===== カラー / 白黒 =====
+var curColorMode = 'color';
 function setColor(mode) {
+  curColorMode = mode;
   document.getElementById('c-color').classList.toggle('on-teal', mode==='color');
   document.getElementById('c-bw').classList.toggle('on-gray', mode==='bw');
   document.getElementById('prev-img').classList.toggle('bw', mode==='bw');
+  render();
 }
 
 // ===== プレビュー更新 =====
@@ -602,6 +615,9 @@ function render() {
   var sz      = parseInt(document.getElementById('sl-size').value);
   var txtColor= document.getElementById('txt-color').value;
   var fontFam = FONTS[curFont];
+
+  // 白黒プレビュー時: テキストを黒に強制
+  if (curColorMode === 'bw') { txtColor = '#111111'; }
 
   document.getElementById('lbl-size').textContent = sz;
 
@@ -741,6 +757,7 @@ function renderWB2(imgW, imgH, fontFam, txtColor) {
         lbl.className = 'wb2-label';
         lbl.style.fontFamily = fontFam;
         lbl.style.fontSize   = otherFs * 0.78 + 'px';
+        if (curColorMode === 'bw') lbl.style.color = txtColor;
         lbl.textContent = f.label + '：';
         var val = document.createElement('span');
         val.className = 'wb2-val';
@@ -756,7 +773,9 @@ function renderWB2(imgW, imgH, fontFam, txtColor) {
     }
 
     colsRow.appendChild(makeCol(leftFields,  'wb2-col-left'));
-    colsRow.appendChild(makeCol(rightFields, 'wb2-col-right'));
+    var rightCol = makeCol(rightFields, 'wb2-col-right');
+    if (curColorMode === 'bw') rightCol.style.borderLeftColor = '#999';
+    colsRow.appendChild(rightCol);
     ov2.appendChild(colsRow);
   }
 }
@@ -780,6 +799,9 @@ async function dlPDF(mode) {
     var sz       = parseInt(document.getElementById('sl-size').value);
     var txtColor = document.getElementById('txt-color').value;
     var fontFam  = FONTS[curFont];
+
+    // 白黒モード: すべてのテキストを黒に強制
+    if (mode === 'bw') { txtColor = '#111111'; }
 
     // 画像を読み込む
     var imgSrc = DESIGNS[curDesignIdx].img;
@@ -943,7 +965,7 @@ async function dlPDF(mode) {
 
         // 中央の仕切り線
         var divX = wb2X + wb2W / 2;
-        ctx.strokeStyle = '#d4eeeb';
+        ctx.strokeStyle = mode === 'bw' ? '#999999' : '#d4eeeb';
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(divX, startWb2Y + otherRowH2 * 0.05);
@@ -964,14 +986,14 @@ async function dlPDF(mode) {
     var msgTxt = msgInp ? msgInp.value.trim() : '';
     if (msgTxt) {
       var msgSz    = parseInt(document.getElementById('sl-msg-size').value || 12);
-      var msgColor = document.getElementById('msg-color').value;
+      var msgColor = mode === 'bw' ? '#111111' : document.getElementById('msg-color').value;
       var msgPosY  = parseFloat(document.getElementById('sl-msg-y').value || 55) / 100;
       var msgPosX  = parseFloat(document.getElementById('sl-msg-x').value || 10) / 100;
       var msgPosW  = parseFloat((document.getElementById('sl-msg-w') || {value:'80'}).value || 80) / 100;
       var msgFs    = msgSz * iw / 1000;
       var msgAlign       = (document.getElementById('msg-align') || {value:'left'}).value || 'left';
       var msgHasBorder   = document.getElementById('msg-border') && document.getElementById('msg-border').checked;
-      var msgBorderColor = (document.getElementById('msg-border-color') || {value:'#111111'}).value;
+      var msgBorderColor = mode === 'bw' ? '#111111' : (document.getElementById('msg-border-color') || {value:'#111111'}).value;
       var msgBorderW     = parseInt((document.getElementById('sl-msg-border-w') || {value:'2'}).value || 2);
 
       ctx.font = 'bold ' + msgFs + 'px ' + fontFam;
